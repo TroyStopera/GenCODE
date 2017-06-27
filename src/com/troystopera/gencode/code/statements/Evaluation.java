@@ -1,6 +1,6 @@
 package com.troystopera.gencode.code.statements;
 
-import com.troystopera.gencode.Val;
+import com.troystopera.gencode.val.Val;
 import com.troystopera.gencode.code.Statement;
 
 /**

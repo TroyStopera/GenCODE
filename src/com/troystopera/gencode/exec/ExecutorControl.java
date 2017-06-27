@@ -1,7 +1,8 @@
 package com.troystopera.gencode.exec;
 
 import com.troystopera.gencode.Problem;
-import com.troystopera.gencode.Val;
+import com.troystopera.gencode.val.BooleanVal;
+import com.troystopera.gencode.val.Val;
 import com.troystopera.gencode.code.statements.evaluations.Comparison;
 
 import java.util.*;
@@ -51,14 +52,14 @@ public class ExecutorControl {
     }
 
     @SuppressWarnings("UnnecessaryLocalVariable")
-    public Optional<Val.Boolean> evaluate(Comparison comparison, Console console, Scope scope) {
+    public Optional<BooleanVal> evaluate(Comparison comparison, Console console, Scope scope) {
         //mask it as Executable so we have aces to execute()
-        Executable<Val.Boolean> executable = comparison;
-        Optional<Val.Boolean> bool = executable.execute(this, console, scope);
+        Executable<BooleanVal> executable = comparison;
+        Optional<BooleanVal> bool = executable.execute(this, console, scope);
         //if going for false result, then change results
         if (genFalse) {
             if (bool.isPresent()) {
-                boolean result = bool.get().get();
+                boolean result = bool.get().val;
                 //determine what percentage to false branch
                 int prob;
                 if (branchPoints.containsKey(comparison)) {
@@ -69,7 +70,7 @@ public class ExecutorControl {
                     branchPoints.put(comparison, 1);
                 }
                 //with prob% chance, reverse the result
-                if (rand.nextInt(100) < prob) return Optional.of(Val.booleanVal(!result));
+                if (rand.nextInt(100) < prob) return Optional.of(BooleanVal.of(!result));
             }
         }
         //otherwise just return

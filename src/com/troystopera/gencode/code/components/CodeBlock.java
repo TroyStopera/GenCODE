@@ -1,6 +1,6 @@
 package com.troystopera.gencode.code.components;
 
-import com.troystopera.gencode.Val;
+import com.troystopera.gencode.val.Val;
 import com.troystopera.gencode.code.Component;
 import com.troystopera.gencode.code.statements.Return;
 import com.troystopera.gencode.exec.Console;

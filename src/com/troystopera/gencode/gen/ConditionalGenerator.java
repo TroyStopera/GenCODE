@@ -2,8 +2,9 @@ package com.troystopera.gencode.gen;
 
 import com.troystopera.gencode.Problem;
 import com.troystopera.gencode.ProblemTopic;
-import com.troystopera.gencode.Val;
-import com.troystopera.gencode.ValType;
+import com.troystopera.gencode.val.IntVal;
+import com.troystopera.gencode.val.Val;
+import com.troystopera.gencode.val.ValType;
 import com.troystopera.gencode.code.BlankLine;
 import com.troystopera.gencode.code.components.CodeBlock;
 import com.troystopera.gencode.code.components.Conditional;
@@ -101,12 +102,12 @@ public class ConditionalGenerator extends Generator {
 
                 //add a simple return value if necessary
                 if (elseBlock && !includeElse)
-                    condBlock.addExecutable(Return.returnStmt(Val.Int.random(RANDOM_RETURN_MAX)));
+                    condBlock.addExecutable(Return.returnStmt(IntVal.random(RANDOM_RETURN_MAX)));
 
                 //update i so that extra branches aren't created and update remainingBranches
                 i += branches;
                 remainingBranches -= branches;
-            } else condBlock.addExecutable(Return.returnStmt(Val.Int.random(RANDOM_RETURN_MAX)));
+            } else condBlock.addExecutable(Return.returnStmt(IntVal.random(RANDOM_RETURN_MAX)));
 
             conditional.addBranch(comparisons[index], condBlock);
 
@@ -122,11 +123,11 @@ public class ConditionalGenerator extends Generator {
         executables.add(conditional);
         //if using else add it, otherwise add a return
         if (elseBlock) conditional.setElse(new CodeBlock(
-                Return.returnStmt(Val.Int.random(RANDOM_RETURN_MAX)))
+                Return.returnStmt(IntVal.random(RANDOM_RETURN_MAX)))
         );
         else {
             executables.add(BlankLine.get());
-            executables.add(Return.returnStmt(Val.Int.random(RANDOM_RETURN_MAX)));
+            executables.add(Return.returnStmt(IntVal.random(RANDOM_RETURN_MAX)));
         }
 
         return executables;
@@ -137,12 +138,12 @@ public class ConditionalGenerator extends Generator {
 
         for (Comparison comparison : comparisons) {
             CodeBlock block = new CodeBlock();
-            block.addExecutable(Return.returnStmt(Val.Int.random(RANDOM_RETURN_MAX)));
+            block.addExecutable(Return.returnStmt(IntVal.random(RANDOM_RETURN_MAX)));
             innerConditional.addBranch(comparison, block);
         }
 
         if (includeElse) {
-            innerConditional.setElse(new CodeBlock(Return.returnStmt(Val.Int.random(RANDOM_RETURN_MAX))));
+            innerConditional.setElse(new CodeBlock(Return.returnStmt(IntVal.random(RANDOM_RETURN_MAX))));
         }
 
         return innerConditional;
@@ -156,7 +157,7 @@ public class ConditionalGenerator extends Generator {
             //determine which vars to compare and generate a Val in case that is used instead
             String var1 = vars[randomInt(0, vars.length)];
             String var2 = vars[randomInt(0, vars.length)];
-            Val intVal = Val.Int.random(100);
+            Val intVal = IntVal.random(100);
 
             //generate the comparison
             switch (ComparisonType.randomType()) {

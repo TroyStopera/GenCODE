@@ -1,6 +1,6 @@
 package com.troystopera.gencode.code.components;
 
-import com.troystopera.gencode.ValType;
+import com.troystopera.gencode.val.ValType;
 
 /***
  * A callable function that may or may not return a value.

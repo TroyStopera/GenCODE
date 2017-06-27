@@ -2,8 +2,9 @@ package com.troystopera.gencode.gen;
 
 import com.troystopera.gencode.Problem;
 import com.troystopera.gencode.ProblemTopic;
-import com.troystopera.gencode.Val;
-import com.troystopera.gencode.ValType;
+import com.troystopera.gencode.val.IntVal;
+import com.troystopera.gencode.val.Val;
+import com.troystopera.gencode.val.ValType;
 import com.troystopera.gencode.code.BlankLine;
 import com.troystopera.gencode.code.components.CodeBlock;
 import com.troystopera.gencode.code.components.ForLoop;
@@ -51,7 +52,7 @@ public class ForLoopGenerator extends Generator {
 
         //create the var that is manipulated and declare it
         String manipulatedVar = "var";
-        executables.add(Declaration.declareWithAssign(manipulatedVar, ValType.INT, Val.intVal(0)));
+        executables.add(Declaration.declareWithAssign(manipulatedVar, ValType.INT, IntVal.of(0)));
 
         //keep track of the last loop generated
         CodeBlock lastLoop = new CodeBlock();
@@ -71,8 +72,8 @@ public class ForLoopGenerator extends Generator {
 
             //determine how to manipulate the var
             Operation manipulationOp;
-            if (randomBool()) manipulationOp = Operation.addition(manipulatedVar, Val.intVal(1));
-            else manipulationOp = Operation.subtraction(manipulatedVar, Val.intVal(1));
+            if (randomBool()) manipulationOp = Operation.addition(manipulatedVar, IntVal.of(1));
+            else manipulationOp = Operation.subtraction(manipulatedVar, IntVal.of(1));
             loop.addExecutable(Assignment.assign(manipulatedVar, manipulationOp));
 
             lastLoop.addExecutable(loop);
@@ -105,18 +106,18 @@ public class ForLoopGenerator extends Generator {
 
         if (forVar == null) {
             Assignment loopAssign;
-            if (opType == OperationType.ADDITION) loopAssign = Assignment.assign(var, Val.intVal(0));
-            else if (opType == OperationType.MULTIPLICATION) loopAssign = Assignment.assign(var, Val.intVal(1));
-            else loopAssign = Assignment.assign(var, Val.intVal(50 + randomInt(0, 50)));
+            if (opType == OperationType.ADDITION) loopAssign = Assignment.assign(var, IntVal.of(0));
+            else if (opType == OperationType.MULTIPLICATION) loopAssign = Assignment.assign(var, IntVal.of(1));
+            else loopAssign = Assignment.assign(var, IntVal.of(50 + randomInt(0, 50)));
 
             return new ForLoop(loopAssign, comparison, assignment);
         } else {
             Declaration declaration;
             if (opType == OperationType.ADDITION)
-                declaration = Declaration.declareWithAssign(var, ValType.INT, Val.intVal(0));
+                declaration = Declaration.declareWithAssign(var, ValType.INT, IntVal.of(0));
             else if (opType == OperationType.MULTIPLICATION)
-                declaration = Declaration.declareWithAssign(var, ValType.INT, Val.intVal(1));
-            else declaration = Declaration.declareWithAssign(var, ValType.INT, Val.intVal(50 + randomInt(0, 50)));
+                declaration = Declaration.declareWithAssign(var, ValType.INT, IntVal.of(1));
+            else declaration = Declaration.declareWithAssign(var, ValType.INT, IntVal.of(50 + randomInt(0, 50)));
 
             return new ForLoop(declaration, comparison, assignment);
         }
@@ -127,19 +128,19 @@ public class ForLoopGenerator extends Generator {
         if (comparison.getCompType() == ComparisonType.LESS_THAN || comparison.getCompType() == ComparisonType.LESS_THAN_EQUAL) {
             //use multiplication more the higher the difficulty is
             if (difficulty >= MULT_MIN_DIF && randomBool(difficulty)) {
-                evaluation = Operation.multiplication(comparison.getVar(), Val.intVal(randomInt(1, 3)));
+                evaluation = Operation.multiplication(comparison.getVar(), IntVal.of(randomInt(1, 3)));
             }
             //if not multiplication, use addition of vars more the higher the difficulty is
             else if (randomBool(difficulty)) {
                 evaluation = Operation.addition(comparison.getVar(), vars[random.nextInt(vars.length)]);
             }
             //otherwise use addition with a value
-            else evaluation = Operation.addition(comparison.getVar(), Val.intVal(randomInt(1, 3)));
+            else evaluation = Operation.addition(comparison.getVar(), IntVal.of(randomInt(1, 3)));
         } else {
             //based on difficulty, add the value of a var
             if (randomBool(difficulty))
                 evaluation = Operation.subtraction(comparison.getVar(), vars[random.nextInt(vars.length)]);
-            else evaluation = Operation.subtraction(comparison.getVar(), Val.intVal(randomInt(1, 3)));
+            else evaluation = Operation.subtraction(comparison.getVar(), IntVal.of(randomInt(1, 3)));
         }
         return Assignment.assign(comparison.getVar(), evaluation);
     }
@@ -149,19 +150,19 @@ public class ForLoopGenerator extends Generator {
         switch (random.nextInt(4)) {
             case 0:
                 return compVal != null ? Comparison.greaterThan(forVar, compVal) :
-                        Comparison.greaterThan(forVar, Val.intVal(randomInt(0, 50)));
+                        Comparison.greaterThan(forVar, IntVal.of(randomInt(0, 50)));
             case 1:
                 return compVal != null ? Comparison.greaterThanEqual(forVar, compVal) :
-                        Comparison.greaterThanEqual(forVar, Val.intVal(randomInt(0, 50)));
+                        Comparison.greaterThanEqual(forVar, IntVal.of(randomInt(0, 50)));
             case 2:
                 return compVal != null ? Comparison.lessThan(forVar, compVal) :
-                        Comparison.lessThan(forVar, Val.intVal(50 + randomInt(0, 50)));
+                        Comparison.lessThan(forVar, IntVal.of(50 + randomInt(0, 50)));
             case 3:
                 return compVal != null ? Comparison.lessThanEqual(forVar, compVal) :
-                        Comparison.lessThanEqual(forVar, Val.intVal(50 + randomInt(0, 50)));
+                        Comparison.lessThanEqual(forVar, IntVal.of(50 + randomInt(0, 50)));
             default:
                 return compVal != null ? Comparison.lessThan(forVar, compVal) :
-                        Comparison.lessThan(forVar, Val.intVal(50 + randomInt(0, 50)));
+                        Comparison.lessThan(forVar, IntVal.of(50 + randomInt(0, 50)));
         }
     }
 

@@ -1,7 +1,7 @@
 package com.troystopera.gencode.code.components;
 
 import com.troystopera.gencode.GenerationException;
-import com.troystopera.gencode.Val;
+import com.troystopera.gencode.val.Val;
 import com.troystopera.gencode.code.statements.Assignment;
 import com.troystopera.gencode.code.statements.Declaration;
 import com.troystopera.gencode.code.statements.evaluations.Comparison;
@@ -45,7 +45,7 @@ public class ForLoop extends CodeBlock {
         if (assignment != null) control.execute(assignment, console, scope);
         else control.execute(declaration, console, scope);
 
-        while (control.evaluate(comparison, console, scope).get().get()) {
+        while (control.evaluate(comparison, console, scope).get().val) {
             //make sure to create a new scope for code that executes within the loop block
             Optional<Val> val = super.execute(control, console, scope.newChildScope());
             //stop execution at a return statement

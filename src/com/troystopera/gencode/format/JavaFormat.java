@@ -1,7 +1,7 @@
 package com.troystopera.gencode.format;
 
-import com.troystopera.gencode.Val;
-import com.troystopera.gencode.ValType;
+import com.troystopera.gencode.val.Val;
+import com.troystopera.gencode.val.ValType;
 import com.troystopera.gencode.code.Component;
 import com.troystopera.gencode.code.Statement;
 import com.troystopera.gencode.code.components.*;
@@ -34,7 +34,7 @@ public class JavaFormat extends Format.Formatter {
                     if (operation.getEvaluation().getEvalType() == Evaluation.Type.VALUE) {
                         Val val = ((Value) operation.getEvaluation()).getVal();
                         //make sure the value is an int
-                        if (val.type() == ValType.INT) {
+                        if (val.type == ValType.INT) {
                             int iVal = val.asInt();
                             //handle increment vs decrement
                             if (operation.getOpType() == OperationType.ADDITION) {
@@ -289,7 +289,7 @@ public class JavaFormat extends Format.Formatter {
     }
 
     private static String valToString(Val val) {
-        switch (val.type()) {
+        switch (val.type) {
             case INT:
                 return val.toString();
             case STRING:

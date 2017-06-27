@@ -1,6 +1,7 @@
 package com.troystopera.gencode.code.statements;
 
-import com.troystopera.gencode.Val;
+import com.troystopera.gencode.val.IntVal;
+import com.troystopera.gencode.val.Val;
 import com.troystopera.gencode.code.Statement;
 import com.troystopera.gencode.code.statements.evaluations.Operation;
 import com.troystopera.gencode.code.statements.evaluations.Value;
@@ -55,12 +56,12 @@ public class Assignment extends Statement<Val> {
     }
 
     public static Assignment increment(String var) {
-        Operation operation = Operation.addition(var, Val.intVal(1));
+        Operation operation = Operation.addition(var, IntVal.of(1));
         return new Assignment(var, operation);
     }
 
     public static Assignment decrement(String var) {
-        Operation operation = Operation.subtraction(var, Val.intVal(1));
+        Operation operation = Operation.subtraction(var, IntVal.of(1));
         return new Assignment(var, operation);
     }
 

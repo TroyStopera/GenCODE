@@ -1,6 +1,6 @@
 package com.troystopera.gencode.code.components;
 
-import com.troystopera.gencode.Val;
+import com.troystopera.gencode.val.Val;
 import com.troystopera.gencode.code.statements.evaluations.Comparison;
 import com.troystopera.gencode.exec.Console;
 import com.troystopera.gencode.exec.ExecutorControl;
@@ -33,9 +33,9 @@ public class WhileLoop extends CodeBlock {
             Optional<Val> val = super.execute(control, console, scope.newChildScope());
             //stop execution at a return statement
             if (val.isPresent()) return val;
-        } while (control.evaluate(comparison, console, scope).get().get());
+        } while (control.evaluate(comparison, console, scope).get().val);
 
-        else while (control.evaluate(comparison, console, scope).get().get()) {
+        else while (control.evaluate(comparison, console, scope).get().val) {
             //make sure to create a new scope for code that executes within the while block
             Optional<Val> val = super.execute(control, console, scope.newChildScope());
             //stop execution at a return statement

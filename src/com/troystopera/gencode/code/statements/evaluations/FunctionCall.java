@@ -1,7 +1,7 @@
 package com.troystopera.gencode.code.statements.evaluations;
 
 import com.troystopera.gencode.GenerationException;
-import com.troystopera.gencode.Val;
+import com.troystopera.gencode.val.Val;
 import com.troystopera.gencode.code.components.Function;
 import com.troystopera.gencode.code.statements.Evaluation;
 import com.troystopera.gencode.exec.Console;

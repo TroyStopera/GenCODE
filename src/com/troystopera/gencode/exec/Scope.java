@@ -1,7 +1,7 @@
 package com.troystopera.gencode.exec;
 
 import com.troystopera.gencode.GenerationException;
-import com.troystopera.gencode.Val;
+import com.troystopera.gencode.val.Val;
 import com.troystopera.gencode.code.components.Function;
 
 import java.util.*;

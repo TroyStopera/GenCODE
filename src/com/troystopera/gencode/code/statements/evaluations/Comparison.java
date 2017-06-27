@@ -1,7 +1,8 @@
 package com.troystopera.gencode.code.statements.evaluations;
 
 import com.troystopera.gencode.GenerationException;
-import com.troystopera.gencode.Val;
+import com.troystopera.gencode.val.BooleanVal;
+import com.troystopera.gencode.val.Val;
 import com.troystopera.gencode.code.logic.Comparisons;
 import com.troystopera.gencode.code.statements.Evaluation;
 import com.troystopera.gencode.exec.Console;
@@ -27,7 +28,7 @@ public class Comparison extends Evaluation {
     }
 
     @Override
-    protected final Optional<Val.Boolean> execute(ExecutorControl control, Console console, Scope scope) {
+    protected final Optional<BooleanVal> execute(ExecutorControl control, Console console, Scope scope) {
         Val val1 = scope.getVal(var);
 
         if (evaluation.getEvalType() == Type.OPERATION)
@@ -37,7 +38,7 @@ public class Comparison extends Evaluation {
         if (!optVal.isPresent()) throw new GenerationException(new NullPointerException("Null value in comparison"));
         Val val2 = optVal.get();
 
-        if (val1.type() == val2.type()) {
+        if (val1.type == val2.type) {
             switch (type) {
                 case GREATER_THEN:
                     return Optional.of(Comparisons.greaterThan(val1, val2));
@@ -55,7 +56,7 @@ public class Comparison extends Evaluation {
                     throw new GenerationException(new UnsupportedOperationException("Unknown operation '" + type + "'"));
             }
         } else throw new GenerationException(new UnsupportedOperationException(
-                "Incompatible types for comparison (" + val1.type() + ", " + val2.type() + ")"));
+                "Incompatible types for comparison (" + val1.type + ", " + val2.type + ")"));
     }
 
     public ComparisonType getCompType() {

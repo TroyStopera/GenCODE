@@ -1,72 +1,75 @@
 package com.troystopera.gencode.code.logic;
 
 import com.troystopera.gencode.GenerationException;
-import com.troystopera.gencode.Val;
+import com.troystopera.gencode.val.BooleanVal;
+import com.troystopera.gencode.val.Val;
+
+import static com.troystopera.gencode.val.ValType.INT;
 
 /***
  * Contains all logic for all supported comparisons.
  */
 public class Comparisons {
 
-    public static Val.Boolean greaterThan(Val v1, Val v2) {
-        switch (v1.type()) {
+    public static BooleanVal greaterThan(Val v1, Val v2) {
+        switch (v1.type) {
             case INT:
-                return Val.booleanVal(v1.asInt() > v2.asInt());
+                return BooleanVal.of(v1.asInt() > v2.asInt());
             default:
-                throw new GenerationException(new UnsupportedOperationException("Cannot compare (>) type: " + v1.type()));
+                throw new GenerationException(new UnsupportedOperationException("Cannot compare (>) type: " + v1.type));
         }
     }
 
-    public static Val.Boolean lessThan(Val v1, Val v2) {
-        switch (v1.type()) {
+    public static BooleanVal lessThan(Val v1, Val v2) {
+        switch (v1.type) {
             case INT:
-                return Val.booleanVal(v1.asInt() < v2.asInt());
+                return BooleanVal.of(v1.asInt() < v2.asInt());
             default:
-                throw new GenerationException(new UnsupportedOperationException("Cannot compare (<) type: " + v1.type()));
+                throw new GenerationException(new UnsupportedOperationException("Cannot compare (<) type: " + v1.type));
         }
     }
 
-    public static Val.Boolean equalTo(Val v1, Val v2) {
-        switch (v1.type()) {
+    public static BooleanVal equalTo(Val v1, Val v2) {
+        switch (v1.type) {
             case INT:
-                return Val.booleanVal(v1.asInt() == v2.asInt());
+                return BooleanVal.of(v1.asInt() == v2.asInt());
             case STRING:
-                return Val.booleanVal(v1.asString().equals(v2.asString()));
+                return BooleanVal.of(v1.asString().equals(v2.asString()));
             case BOOLEAN:
-                return Val.booleanVal(v1.asBoolean() == v2.asBoolean());
+                return BooleanVal.of(v1.asBoolean() == v2.asBoolean());
             default:
-                throw new GenerationException(new UnsupportedOperationException("Cannot compare (==) type: " + v1.type()));
+                throw new GenerationException(new UnsupportedOperationException("Cannot compare (==) type: " + v1.type));
         }
     }
 
-    public static Val.Boolean notEqualTo(Val v1, Val v2) {
-        switch (v1.type()) {
+    public static BooleanVal notEqualTo(Val v1, Val v2) {
+        switch (v1.type) {
             case INT:
-                return Val.booleanVal(v1.asInt() != v2.asInt());
+                return BooleanVal.of(v1.asInt() != v2.asInt());
             case STRING:
-                return Val.booleanVal(!v1.asString().equals(v2.asString()));
+                return BooleanVal.of(!v1.asString().equals(v2.asString()));
             case BOOLEAN:
-                return Val.booleanVal(v1.asBoolean() != v2.asBoolean());
+                return BooleanVal.of(v1.asBoolean() != v2.asBoolean());
             default:
-                throw new GenerationException(new UnsupportedOperationException("Cannot compare (==) type: " + v1.type()));
+                throw new GenerationException(new UnsupportedOperationException("Cannot compare (==) type: " + v1.type));
         }
     }
 
-    public static Val.Boolean greaterThanEqual(Val v1, Val v2) {
-        switch (v1.type()) {
+    public static BooleanVal greaterThanEqual(Val v1, Val v2) {
+        switch (v1.type) {
             case INT:
-                return Val.booleanVal(v1.asInt() >= v2.asInt());
+                return BooleanVal.of(v1.asInt() >= v2.asInt());
             default:
-                throw new GenerationException(new UnsupportedOperationException("Cannot compare (>=) type: " + v1.type()));
+                throw new GenerationException(new UnsupportedOperationException("Cannot compare (>=) type: " + v1.type));
         }
     }
 
-    public static Val.Boolean lessThanEqual(Val v1, Val v2) {
-        switch (v1.type()) {
+    public static BooleanVal lessThanEqual(Val v1, Val v2) {
+        switch (v1.type) {
             case INT:
-                return Val.booleanVal(v1.asInt() <= v2.asInt());
+                return BooleanVal.of(v1.asInt() <= v2.asInt());
             default:
-                throw new GenerationException(new UnsupportedOperationException("Cannot compare (<=) type: " + v1.type()));
+                throw new GenerationException(new UnsupportedOperationException("Cannot compare (<=) type: " + v1.type));
         }
     }
 

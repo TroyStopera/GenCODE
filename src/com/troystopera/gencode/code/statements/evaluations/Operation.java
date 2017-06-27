@@ -1,7 +1,7 @@
 package com.troystopera.gencode.code.statements.evaluations;
 
 import com.troystopera.gencode.GenerationException;
-import com.troystopera.gencode.Val;
+import com.troystopera.gencode.val.Val;
 import com.troystopera.gencode.code.logic.Operations;
 import com.troystopera.gencode.code.statements.Evaluation;
 import com.troystopera.gencode.exec.Console;
@@ -38,7 +38,7 @@ public class Operation extends Evaluation {
         Val val2 = optVal.get();
 
         Val result;
-        if (val1.type() == val2.type()) {
+        if (val1.type == val2.type) {
             switch (type) {
                 case ADDITION:
                     result = Operations.add(val1, val2);
@@ -59,7 +59,7 @@ public class Operation extends Evaluation {
                     throw new GenerationException(new UnsupportedOperationException("Unknown operation '" + type + "'"));
             }
         } else throw new GenerationException(new UnsupportedOperationException(
-                "Incompatible types for operation (" + val1.type() + ", " + val2.type() + ")"));
+                "Incompatible types for operation (" + val1.type + ", " + val2.type + ")"));
         return Optional.of(result);
     }
 
