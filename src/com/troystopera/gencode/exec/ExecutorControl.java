@@ -1,9 +1,9 @@
 package com.troystopera.gencode.exec;
 
 import com.troystopera.gencode.Problem;
-import com.troystopera.gencode.val.BooleanVal;
-import com.troystopera.gencode.val.Val;
 import com.troystopera.gencode.code.statements.evaluations.Comparison;
+import com.troystopera.gencode.var.BooleanVar;
+import com.troystopera.gencode.var.Var;
 
 import java.util.*;
 
@@ -45,21 +45,21 @@ public class ExecutorControl {
     }
 
     @SuppressWarnings("unchecked")
-    public Optional<Val> execute(Executable executable, Console console, Scope scope) {
+    public Optional<Var> execute(Executable executable, Console console, Scope scope) {
         Optional opt = executable.execute(this, console, scope);
-        if (opt.isPresent() && opt.get() instanceof Val) return (Optional<Val>) opt;
+        if (opt.isPresent() && opt.get() instanceof Var) return (Optional<Var>) opt;
         else return Optional.empty();
     }
 
     @SuppressWarnings("UnnecessaryLocalVariable")
-    public Optional<BooleanVal> evaluate(Comparison comparison, Console console, Scope scope) {
+    public Optional<BooleanVar> evaluate(Comparison comparison, Console console, Scope scope) {
         //mask it as Executable so we have aces to execute()
-        Executable<BooleanVal> executable = comparison;
-        Optional<BooleanVal> bool = executable.execute(this, console, scope);
+        Executable<BooleanVar> executable = comparison;
+        Optional<BooleanVar> bool = executable.execute(this, console, scope);
         //if going for false result, then change results
         if (genFalse) {
             if (bool.isPresent()) {
-                boolean result = bool.get().val;
+                boolean result = bool.get().getValue();
                 //determine what percentage to false branch
                 int prob;
                 if (branchPoints.containsKey(comparison)) {
@@ -70,7 +70,7 @@ public class ExecutorControl {
                     branchPoints.put(comparison, 1);
                 }
                 //with prob% chance, reverse the result
-                if (rand.nextInt(100) < prob) return Optional.of(BooleanVal.of(!result));
+                if (rand.nextInt(100) < prob) return Optional.of(BooleanVar.of(!result));
             }
         }
         //otherwise just return

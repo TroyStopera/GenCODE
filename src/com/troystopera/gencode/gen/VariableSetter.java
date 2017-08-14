@@ -1,9 +1,9 @@
 package com.troystopera.gencode.gen;
 
-import com.troystopera.gencode.val.IntVal;
-import com.troystopera.gencode.val.ValType;
 import com.troystopera.gencode.code.components.CodeBlock;
 import com.troystopera.gencode.code.statements.Declaration;
+import com.troystopera.gencode.var.IntVar;
+import com.troystopera.gencode.var.VarType;
 
 import java.util.Random;
 
@@ -22,13 +22,13 @@ public class VariableSetter {
         if (vars.length == 0) return block;
 
         //assign the first variable a random value
-        block.addExecutable(Declaration.declareWithAssign(vars[0], ValType.INT, IntVal.random(100)));
+        block.addExecutable(Declaration.declareWithAssign(vars[0], VarType.INT_PRIMITIVE, IntVar.random(100)));
 
         for (int i = 1; i < vars.length; i++) {
             //coin flip if difficulty appropriate for setting to var
             if (difficulty >= MIN_DIF_FOR_VAR_ASSIGN && rand.nextBoolean())
-                block.addExecutable(Declaration.declareWithAssign(vars[i], ValType.INT, vars[rand.nextInt(i)]));
-            else block.addExecutable(Declaration.declareWithAssign(vars[i], ValType.INT, IntVal.random(100)));
+                block.addExecutable(Declaration.declareWithAssign(vars[i], VarType.INT_PRIMITIVE, vars[rand.nextInt(i)]));
+            else block.addExecutable(Declaration.declareWithAssign(vars[i], VarType.INT_PRIMITIVE, IntVar.random(100)));
         }
         return block;
     }

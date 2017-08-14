@@ -1,27 +1,27 @@
 package com.troystopera.gencode.code.statements;
 
-import com.troystopera.gencode.val.Val;
-import com.troystopera.gencode.val.ValType;
 import com.troystopera.gencode.code.Statement;
 import com.troystopera.gencode.code.statements.evaluations.Value;
 import com.troystopera.gencode.code.statements.evaluations.Variable;
 import com.troystopera.gencode.exec.Console;
 import com.troystopera.gencode.exec.ExecutorControl;
 import com.troystopera.gencode.exec.Scope;
+import com.troystopera.gencode.var.Var;
+import com.troystopera.gencode.var.VarType;
 
 import java.util.Optional;
 
 /***
  * Represents a simple declaration of a variable.
  */
-public class Declaration extends Statement<Val> {
+public class Declaration extends Statement<Var> {
 
     private final String var;
-    private final ValType type;
+    private final VarType type;
     //optional assignment values
     private final Evaluation evaluation;
 
-    private Declaration(String var, ValType type, Evaluation evaluation) {
+    private Declaration(String var, VarType type, Evaluation evaluation) {
         super(Statement.Type.DECLARATION);
         this.var = var;
         this.type = type;
@@ -32,7 +32,7 @@ public class Declaration extends Statement<Val> {
         return var;
     }
 
-    public ValType getValType() {
+    public VarType getVarType() {
         return type;
     }
 
@@ -45,7 +45,7 @@ public class Declaration extends Statement<Val> {
     }
 
     @Override
-    protected final Optional<Val> execute(ExecutorControl control, Console console, Scope scope) {
+    protected final Optional<Var> execute(ExecutorControl control, Console console, Scope scope) {
         scope.addVar(var);
         //execute assignment
         if (hasAssignment()) control.execute(Assignment.assign(var, evaluation), console, scope);
@@ -53,20 +53,20 @@ public class Declaration extends Statement<Val> {
         return Optional.empty();
     }
 
-    public static Declaration declare(String var, ValType type) {
-        return new Declaration(var, type, null);
+    public static Declaration declare(String name, VarType type) {
+        return new Declaration(name, type, null);
     }
 
-    public static Declaration declareWithAssign(String var, ValType type, String var2) {
-        return new Declaration(var, type, Variable.of(var2));
+    public static Declaration declareWithAssign(String name, VarType type, String var) {
+        return new Declaration(name, type, Variable.of(var));
     }
 
-    public static Declaration declareWithAssign(String var, ValType type, Val val) {
-        return new Declaration(var, type, Value.of(val));
+    public static Declaration declareWithAssign(String name, VarType type, Var var) {
+        return new Declaration(name, type, Value.of(var));
     }
 
-    public static Declaration declareWithAssign(String var, ValType type, Evaluation evaluation) {
-        return new Declaration(var, type, evaluation);
+    public static Declaration declareWithAssign(String name, VarType type, Evaluation evaluation) {
+        return new Declaration(name, type, evaluation);
     }
 
 }

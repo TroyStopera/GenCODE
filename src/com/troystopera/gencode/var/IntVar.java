@@ -1,34 +1,36 @@
-package com.troystopera.gencode.val;
+package com.troystopera.gencode.var;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import static com.troystopera.gencode.var.VarType.INT_PRIMITIVE;
+
 /**
  * Class used to virtually represent an int.
  */
-public class IntVal extends Val<Integer> {
+public class IntVar extends PrimitiveVar<Integer> {
 
     private static final IntCache cache = new IntCache(100);
 
-    private IntVal(int val) {
-        super(ValType.INT, val);
+    private IntVar(int val) {
+        super(INT_PRIMITIVE, val);
     }
 
-    public static IntVal random(int max) {
-        return new IntVal(random.nextInt(max + 1));
+    public static IntVar random(int max) {
+        return new IntVar(random.nextInt(max + 1));
     }
 
-    public static IntVal of(int i) {
+    public static IntVar of(int i) {
         if (cache.containsKey(i))
             return cache.get(i);
         else {
-            IntVal val = new IntVal(i);
+            IntVar val = new IntVar(i);
             cache.put(i, val);
             return val;
         }
     }
 
-    private static class IntCache extends LinkedHashMap<Integer, IntVal> {
+    private static class IntCache extends LinkedHashMap<Integer, IntVar> {
 
         private final int capacity;
 
@@ -38,7 +40,7 @@ public class IntVal extends Val<Integer> {
         }
 
         @Override
-        protected boolean removeEldestEntry(Map.Entry<Integer, IntVal> entry) {
+        protected boolean removeEldestEntry(Map.Entry<Integer, IntVar> entry) {
             return size() > capacity;
         }
 

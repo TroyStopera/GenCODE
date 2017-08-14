@@ -1,6 +1,6 @@
 package com.troystopera.gencode.exec;
 
-import com.troystopera.gencode.val.Val;
+import com.troystopera.gencode.var.Var;
 
 import java.util.Collection;
 import java.util.LinkedList;
@@ -11,7 +11,7 @@ import java.util.LinkedList;
 public class Console {
 
     private final Collection<String> console = new LinkedList<>();
-    private Val returnVal;
+    private Var returnVar;
 
     Console() {
         //only instantiated from this package
@@ -21,12 +21,12 @@ public class Console {
         console.add(s);
     }
 
-    public void setReturn(Val val) {
-        returnVal = val;
+    public void setReturn(Var var) {
+        returnVar = var;
     }
 
     ExecOutput toOutput() {
-        return new ExecOutput(console, returnVal);
+        return new ExecOutput(console, returnVar);
     }
 
 }

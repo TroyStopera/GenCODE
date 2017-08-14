@@ -1,13 +1,13 @@
 package com.troystopera.gencode.code.components;
 
 import com.troystopera.gencode.GenerationException;
-import com.troystopera.gencode.val.BooleanVal;
-import com.troystopera.gencode.val.Val;
 import com.troystopera.gencode.code.Component;
 import com.troystopera.gencode.code.statements.evaluations.Comparison;
 import com.troystopera.gencode.exec.Console;
 import com.troystopera.gencode.exec.ExecutorControl;
 import com.troystopera.gencode.exec.Scope;
+import com.troystopera.gencode.var.BooleanVar;
+import com.troystopera.gencode.var.Var;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -37,12 +37,12 @@ public class Conditional extends Component {
     }
 
     @Override
-    protected final Optional<Val> execute(ExecutorControl control, Console console, Scope scope) {
+    protected final Optional<Var> execute(ExecutorControl control, Console console, Scope scope) {
         for (Map.Entry<Comparison, CodeBlock> entry : branches.entrySet()) {
-            Optional<BooleanVal> result = control.evaluate(entry.getKey(), console, scope);
+            Optional<BooleanVar> result = control.evaluate(entry.getKey(), console, scope);
             if (result.isPresent()) {
                 //make sure to create a new scope for code that executes within the conditional block
-                if (result.get().val) return control.execute(entry.getValue(), console, scope.newChildScope());
+                if (result.get().getValue()) return control.execute(entry.getValue(), console, scope.newChildScope());
             }
         }
         if (elseBlock != null) {

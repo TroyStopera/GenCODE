@@ -1,13 +1,13 @@
 package com.troystopera.gencode.code.components;
 
 import com.troystopera.gencode.GenerationException;
-import com.troystopera.gencode.val.Val;
 import com.troystopera.gencode.code.statements.Assignment;
 import com.troystopera.gencode.code.statements.Declaration;
 import com.troystopera.gencode.code.statements.evaluations.Comparison;
 import com.troystopera.gencode.exec.Console;
 import com.troystopera.gencode.exec.ExecutorControl;
 import com.troystopera.gencode.exec.Scope;
+import com.troystopera.gencode.var.Var;
 
 import java.util.Optional;
 
@@ -41,15 +41,15 @@ public class ForLoop extends CodeBlock {
     }
 
     @Override
-    protected final Optional<Val> execute(ExecutorControl control, Console console, Scope scope) {
+    protected final Optional<Var> execute(ExecutorControl control, Console console, Scope scope) {
         if (assignment != null) control.execute(assignment, console, scope);
         else control.execute(declaration, console, scope);
 
-        while (control.evaluate(comparison, console, scope).get().val) {
+        while (control.evaluate(comparison, console, scope).get().getValue()) {
             //make sure to create a new scope for code that executes within the loop block
-            Optional<Val> val = super.execute(control, console, scope.newChildScope());
+            Optional<Var> var = super.execute(control, console, scope.newChildScope());
             //stop execution at a return statement
-            if (val.isPresent()) return val;
+            if (var.isPresent()) return var;
             control.execute(opAssignment, console, scope);
         }
         return Optional.empty();

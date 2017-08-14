@@ -1,12 +1,12 @@
 package com.troystopera.gencode.code.statements.evaluations;
 
 import com.troystopera.gencode.GenerationException;
-import com.troystopera.gencode.val.Val;
 import com.troystopera.gencode.code.components.Function;
 import com.troystopera.gencode.code.statements.Evaluation;
 import com.troystopera.gencode.exec.Console;
 import com.troystopera.gencode.exec.ExecutorControl;
 import com.troystopera.gencode.exec.Scope;
+import com.troystopera.gencode.var.Var;
 
 import java.util.Optional;
 
@@ -33,7 +33,7 @@ public class FunctionCall extends Evaluation {
     }
 
     @Override
-    protected final Optional<Val> execute(ExecutorControl control, Console console, Scope scope) {
+    protected final Optional<Var> execute(ExecutorControl control, Console console, Scope scope) {
         if (scope.containsFunction(function)) {
             Function fn = scope.getFunction(function);
             Function.Argument[] argNames = fn.getArgs();
@@ -45,8 +45,8 @@ public class FunctionCall extends Evaluation {
 
             //set the new scope to have proper values for their arguments
             for (int i = 0; i < args.length; i++) {
-                Optional<Val> val = control.execute(args[i], console, scope);
-                if (val.isPresent()) scope.addVar(argNames[i].name, val.get());
+                Optional<Var> var = control.execute(args[i], console, scope);
+                if (var.isPresent()) scope.addVar(argNames[i].name, var.get());
             }
 
             return control.execute(fn, console, scope.newChildScope());
@@ -57,7 +57,7 @@ public class FunctionCall extends Evaluation {
         return new FunctionCall(function, args);
     }
 
-    public static FunctionCall call(String function, Val... args) {
+    public static FunctionCall call(String function, Var... args) {
         Evaluation[] evaluations = new Evaluation[args.length];
         //convert to Evaluations
         for (int i = 0; i < args.length; i++)

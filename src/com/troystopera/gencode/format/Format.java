@@ -3,53 +3,144 @@ package com.troystopera.gencode.format;
 import com.troystopera.gencode.Problem;
 import com.troystopera.gencode.code.Component;
 import com.troystopera.gencode.code.Statement;
+import com.troystopera.gencode.code.components.*;
+import com.troystopera.gencode.code.statements.Assignment;
+import com.troystopera.gencode.code.statements.Declaration;
 import com.troystopera.gencode.code.statements.Evaluation;
+import com.troystopera.gencode.code.statements.Return;
+import com.troystopera.gencode.code.statements.evaluations.*;
 import com.troystopera.gencode.exec.Executable;
 
-/***
- * This class provides a system to format generated code to specific languages.
+/**
+ * Created by troy on 8/1/17.
  */
-public final class Format {
+public abstract class Format {
 
-    public static Formatter java() {
-        return new JavaFormat();
+    private static JavaFormat javaFormat;
+
+    private int indentation = 0;
+
+    public final String format(Problem problem) {
+        indentation = 0;
+        StringBuilder builder = new StringBuilder();
+        for (Function function : problem.getFunctions())
+            builder.append(formatCompFunction(function)).append("\n\n");
+        return builder.toString();
     }
 
-    /*
-        Abstract class that can be extended to format to any language.
-     */
-    public static abstract class Formatter {
-
-        public final String format(Problem problem) {
-            StringBuilder builder = new StringBuilder();
-            for (Executable executable : problem.getFunctions())
-                format(executable, builder);
-            return builder.toString();
-        }
-
-        void format(Executable executable, StringBuilder builder) {
+    final String formatBlock(CodeBlock codeBlock) {
+        StringBuilder builder = new StringBuilder();
+        for (Executable executable : codeBlock.getExecutables()) {
             switch (executable.getExecType()) {
                 case STATEMENT:
-                    Statement statement = (Statement) executable;
-                    if (statement.getType() == Statement.Type.EVALUATION)
-                        formatEvaluation((Evaluation) statement, builder, true);
-                    else formatStatement(statement, builder);
+                    builder.append(formatStmt((Statement) executable)).append('\n');
                     break;
                 case COMPONENT:
-                    formatComponent((Component) executable, builder);
+                    builder.append(formatComp((Component) executable)).append('\n');
                     break;
                 case EMPTY:
                     builder.append('\n');
                     break;
             }
         }
+        return builder.toString();
+    }
 
-        abstract void formatStatement(Statement statement, StringBuilder builder);
+    final String formatEval(Evaluation evaluation) {
+        switch (evaluation.getEvalType()) {
+            case COMPARISON:
+                return formatEvalComparison((Comparison) evaluation);
+            case FUNC_CALL:
+                return formatEvalFuncCall((FunctionCall) evaluation);
+            case OPERATION:
+                return formatEvalOperation((Operation) evaluation);
+            case VALUE:
+                return formatEvalValue((Value) evaluation);
+            case VARIABLE:
+                return formatEvalVariable((Variable) evaluation);
+        }
+        return "";
+    }
 
-        abstract void formatEvaluation(Evaluation evaluation, StringBuilder builder, boolean indent);
+    private String formatStmt(Statement statement) {
+        switch (statement.getType()) {
+            case ASSIGNMENT:
+                return getIndent() + formatStmtAssign((Assignment) statement) + ";";
+            case DECLARATION:
+                return getIndent() + formatStmtDeclare((Declaration) statement) + ";";
+            case RETURN:
+                return getIndent() + formatStmtReturn((Return) statement) + ";";
+            case EVALUATION:
+                return getIndent() + formatEval((Evaluation) statement) + ";";
+        }
+        return "";
+    }
 
-        abstract void formatComponent(Component component, StringBuilder builder);
+    private String formatComp(Component component) {
+        switch (component.getType()) {
+            case GENERIC:
+                return formatBlock((CodeBlock) component) + '\n';
+            case CONDITIONAL:
+                return formatCompConditional((Conditional) component) + '\n';
+            case FOR_LOOP:
+                return formatCompForLoop((ForLoop) component) + '\n';
+            case WHILE_LOOP:
+                return formatCompWhileLoop((WhileLoop) component) + '\n';
+            case FUNCTION:
+                return formatCompFunction((Function) component) + '\n';
+        }
+        return "";
+    }
 
+    /* Formatting statements */
+
+    abstract String formatStmtAssign(Assignment assignment);
+
+    abstract String formatStmtDeclare(Declaration declaration);
+
+    abstract String formatStmtReturn(Return r);
+
+    /* Formatting components */
+
+    abstract String formatCompConditional(Conditional conditional);
+
+    abstract String formatCompForLoop(ForLoop forLoop);
+
+    abstract String formatCompWhileLoop(WhileLoop whileLoop);
+
+    abstract String formatCompFunction(Function function);
+
+    /* Formatting evaluations */
+
+    abstract String formatEvalComparison(Comparison comparison);
+
+    abstract String formatEvalFuncCall(FunctionCall functionCall);
+
+    abstract String formatEvalOperation(Operation operation);
+
+    abstract String formatEvalValue(Value value);
+
+    abstract String formatEvalVariable(Variable variable);
+
+    /* Indentation controls */
+
+    void changeIndent(int change) {
+        indentation += change;
+    }
+
+    String getIndent() {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < indentation; i++)
+            builder.append("    ");
+        return builder.toString();
+    }
+
+    /* Getters for formats */
+
+    public static JavaFormat java() {
+        if (javaFormat == null)
+            javaFormat = new JavaFormat();
+        return javaFormat;
     }
 
 }

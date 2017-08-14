@@ -1,12 +1,12 @@
 package com.troystopera.gencode.code.components;
 
-import com.troystopera.gencode.val.Val;
 import com.troystopera.gencode.code.Component;
 import com.troystopera.gencode.code.statements.Return;
 import com.troystopera.gencode.exec.Console;
 import com.troystopera.gencode.exec.Executable;
 import com.troystopera.gencode.exec.ExecutorControl;
 import com.troystopera.gencode.exec.Scope;
+import com.troystopera.gencode.var.Var;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -61,7 +61,7 @@ public class CodeBlock extends Component {
     }
 
     @Override
-    protected Optional<Val> execute(ExecutorControl control, Console console, Scope scope) {
+    protected Optional<Var> execute(ExecutorControl control, Console console, Scope scope) {
         for (Executable executable : executables) {
             //stop execution at a return statement
             if (executable instanceof Return) {
@@ -71,8 +71,8 @@ public class CodeBlock extends Component {
                 Optional optional = control.execute(executable, console, scope);
                 //only *components* with a return value need to be considered for return
                 if (executable instanceof Component && optional.isPresent()) {
-                    Object val = optional.get();
-                    if (val instanceof Val) return Optional.of((Val) val);
+                    Object var = optional.get();
+                    if (var instanceof Var) return Optional.of((Var) var);
                 }
             }
         }

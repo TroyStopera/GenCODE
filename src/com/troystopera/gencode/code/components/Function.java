@@ -1,6 +1,6 @@
 package com.troystopera.gencode.code.components;
 
-import com.troystopera.gencode.val.ValType;
+import com.troystopera.gencode.var.VarType;
 
 /***
  * A callable function that may or may not return a value.
@@ -8,14 +8,14 @@ import com.troystopera.gencode.val.ValType;
 public class Function extends CodeBlock {
 
     private final String name;
-    private final ValType returnType;
+    private final VarType returnType;
     private final Argument[] args;
 
     public Function(String name, Argument... args) {
         this(name, null, args);
     }
 
-    public Function(String name, ValType returnType, Argument... args) {
+    public Function(String name, VarType returnType, Argument... args) {
         super(Type.FUNCTION);
         this.name = name;
         this.returnType = returnType;
@@ -34,7 +34,7 @@ public class Function extends CodeBlock {
         return returnType != null;
     }
 
-    public ValType getReturnType() {
+    public VarType getReturnType() {
         return returnType;
     }
 
@@ -43,10 +43,10 @@ public class Function extends CodeBlock {
      */
     public static class Argument {
 
-        public final ValType type;
+        public final VarType type;
         public final String name;
 
-        public Argument(ValType type, String name) {
+        public Argument(VarType type, String name) {
             this.type = type;
             this.name = name;
         }

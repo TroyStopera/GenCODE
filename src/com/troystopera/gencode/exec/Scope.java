@@ -1,8 +1,8 @@
 package com.troystopera.gencode.exec;
 
 import com.troystopera.gencode.GenerationException;
-import com.troystopera.gencode.val.Val;
 import com.troystopera.gencode.code.components.Function;
+import com.troystopera.gencode.var.Var;
 
 import java.util.*;
 
@@ -14,7 +14,7 @@ public class Scope {
 
     private static final Random random = new Random();
 
-    private final Map<String, Val> vars = new HashMap<>();
+    private final Map<String, Var> vars = new HashMap<>();
     private final List<String> varNames = new ArrayList<>();
     private final Map<String, Function> funcs = new HashMap<>();
     private final List<String> funcNames = new ArrayList<>();
@@ -78,31 +78,31 @@ public class Scope {
         return depth;
     }
 
-    public void addVar(String var) {
-        addVar(var, null);
+    public void addVar(String name) {
+        addVar(name, null);
     }
 
-    public void addVar(String var, Val val) {
-        varNames.add(var);
-        vars.put(var, val);
+    public void addVar(String name, Var var) {
+        varNames.add(name);
+        vars.put(name, var);
     }
 
     public void nullVar(String var) {
         vars.remove(var);
     }
 
-    public Val getVal(String var) {
+    public Var getVal(String name) {
         Scope scope = this;
-        while (!scope.vars.containsKey(var) && scope.hasParent()) scope = scope.getParent();
-        if (scope.vars.containsKey(var)) return scope.vars.get(var);
-        throw new GenerationException(new NullPointerException("Unknown variable: " + var));
+        while (!scope.vars.containsKey(name) && scope.hasParent()) scope = scope.getParent();
+        if (scope.vars.containsKey(name)) return scope.vars.get(name);
+        throw new GenerationException(new NullPointerException("Unknown variable: " + name));
     }
 
-    public void updateVal(String var, Val val) {
+    public void updateVal(String name, Var var) {
         Scope scope = this;
-        while (!scope.varNames.contains(var) && scope.hasParent()) scope = scope.getParent();
-        if (scope.varNames.contains(var)) scope.vars.put(var, val);
-        else throw new GenerationException(new NullPointerException("Unknown variable: " + var));
+        while (!scope.varNames.contains(name) && scope.hasParent()) scope = scope.getParent();
+        if (scope.varNames.contains(name)) scope.vars.put(name, var);
+        else throw new GenerationException(new NullPointerException("Unknown variable: " + name));
     }
 
     public Function getFunction(String name) {
@@ -126,7 +126,7 @@ public class Scope {
 
         void onWriteToConsole(String s);
 
-        void onReturnValue(Val v);
+        void onReturnValue(Var v);
 
     }
 

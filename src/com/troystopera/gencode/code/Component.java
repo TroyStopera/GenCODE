@@ -1,12 +1,12 @@
 package com.troystopera.gencode.code;
 
-import com.troystopera.gencode.val.Val;
 import com.troystopera.gencode.exec.Executable;
+import com.troystopera.gencode.var.Var;
 
 /***
  * Represents an Executable component of code, created from Statements and other Components.
  */
-public abstract class Component extends Executable<Val> {
+public abstract class Component extends Executable<Var> {
 
     private final Type type;
 

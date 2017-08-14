@@ -1,6 +1,6 @@
 package com.troystopera.gencode.exec;
 
-import com.troystopera.gencode.val.Val;
+import com.troystopera.gencode.var.Var;
 
 import java.util.Collection;
 
@@ -10,19 +10,19 @@ import java.util.Collection;
 public class ExecOutput {
 
     private final Collection<String> console;
-    private Val returnVal;
+    private Var returnVar;
 
-    ExecOutput(Collection<String> console, Val returnVal) {
+    ExecOutput(Collection<String> console, Var returnVar) {
         this.console = console;
-        this.returnVal = returnVal;
+        this.returnVar = returnVar;
     }
 
     public Collection<String> getConsole() {
         return console;
     }
 
-    public Val getReturnVal() {
-        return returnVal;
+    public Var getReturnVar() {
+        return returnVar;
     }
 
 }

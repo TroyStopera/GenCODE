@@ -1,12 +1,12 @@
 package com.troystopera.gencode.code.statements;
 
-import com.troystopera.gencode.val.Val;
 import com.troystopera.gencode.code.Statement;
+import com.troystopera.gencode.var.Var;
 
 /**
  * A Statement that can be evaluated to a Val.
  */
-public abstract class Evaluation<T extends Val> extends Statement<T> {
+public abstract class Evaluation<T extends Var> extends Statement<T> {
 
     public enum Type {
         COMPARISON, FUNC_CALL, OPERATION, VALUE, VARIABLE

@@ -1,13 +1,13 @@
 package com.troystopera.gencode.code;
 
-import com.troystopera.gencode.val.Val;
 import com.troystopera.gencode.exec.Executable;
+import com.troystopera.gencode.var.Var;
 
 /***
  * Represents an executable statement in generated code. Statements are executed once the code generates to
  * determine the results of the code.
  */
-public abstract class Statement<T extends Val> extends Executable<T> {
+public abstract class Statement<T extends Var> extends Executable<T> {
 
     private final Type type;
 

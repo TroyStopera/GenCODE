@@ -1,10 +1,10 @@
 package com.troystopera.gencode.code.statements.evaluations;
 
-import com.troystopera.gencode.val.Val;
 import com.troystopera.gencode.code.statements.Evaluation;
 import com.troystopera.gencode.exec.Console;
 import com.troystopera.gencode.exec.ExecutorControl;
 import com.troystopera.gencode.exec.Scope;
+import com.troystopera.gencode.var.Var;
 
 import java.util.Optional;
 
@@ -13,24 +13,24 @@ import java.util.Optional;
  */
 public class Value extends Evaluation {
 
-    private final Val val;
+    private final Var var;
 
-    private Value(Val val) {
+    private Value(Var var) {
         super(Type.VALUE);
-        this.val = val;
+        this.var = var;
     }
 
-    public Val getVal() {
-        return val;
+    public Var getVar() {
+        return var;
     }
 
-    public static Value of(Val val) {
-        return new Value(val);
+    public static Value of(Var var) {
+        return new Value(var);
     }
 
     @Override
     protected Optional execute(ExecutorControl control, Console console, Scope scope) {
-        return Optional.of(val);
+        return Optional.of(var);
     }
 
 }
