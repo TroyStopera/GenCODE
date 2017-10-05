@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="GenCODE:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/GenCODE_jar</output-path>
+    <root id="archive" name="GenCODE.jar">
+      <element id="module-output" name="GenCODE" />
+    </root>
+  </artifact>
+</component>
