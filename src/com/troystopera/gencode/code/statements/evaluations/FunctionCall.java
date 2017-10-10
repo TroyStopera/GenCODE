@@ -13,7 +13,7 @@ import java.util.Optional;
 /***
  * A call to a function that may or may not return a value.
  */
-public class FunctionCall extends Evaluation {
+public class FunctionCall extends Evaluation<Var> {
 
     private final String function;
     private final Evaluation[] args;

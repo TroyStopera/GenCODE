@@ -9,7 +9,7 @@ import com.troystopera.gencode.var.Var;
 import java.util.Optional;
 
 /**
- * Evaluation of a value literal..
+ * Evaluation of a value literal.
  */
 public class Value extends Evaluation {
 

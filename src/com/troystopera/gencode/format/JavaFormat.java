@@ -6,13 +6,10 @@ import com.troystopera.gencode.code.statements.Declaration;
 import com.troystopera.gencode.code.statements.Evaluation;
 import com.troystopera.gencode.code.statements.Return;
 import com.troystopera.gencode.code.statements.evaluations.*;
-import com.troystopera.gencode.var.VarType;
+import com.troystopera.gencode.var.*;
 
 import java.util.Map;
 
-/**
- * Created by troy on 8/1/17.
- */
 public class JavaFormat extends Format {
 
     protected JavaFormat() {
@@ -23,9 +20,12 @@ public class JavaFormat extends Format {
 
     @Override
     String formatStmtAssign(Assignment assignment) {
-        return assignment.getVar() +
-                " = " +
-                formatEval(assignment.getEval());
+        String var;
+        if (assignment.isArrayIndexAssign()) {
+            var = assignment.getVar() + "[" + assignment.getArrayIndex() + "]";
+        } else var = assignment.getVar();
+
+        return var + " = " + formatEval(assignment.getEval());
     }
 
     @Override
@@ -207,14 +207,64 @@ public class JavaFormat extends Format {
                 formatEval(operation.getEvaluation());
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     String formatEvalValue(Value value) {
+        switch (value.getVar().getType()) {
+            case INT_ARRAY:
+                ArrayVar<IntVar> ints = (ArrayVar<IntVar>) value.getVar();
+                StringBuilder intArr = new StringBuilder().append("{");
+                for (IntVar intVar : ints.getArray())
+                    intArr.append(formatEvalValue(Value.of(intVar))).append(", ");
+                //remove last comma and space if present
+                if (intArr.length() > 1)
+                    intArr.setLength(intArr.length() - 2);
+                intArr.append("}");
+                return intArr.toString();
+            case BOOLEAN_ARRAY:
+                ArrayVar<BooleanVar> bools = (ArrayVar<BooleanVar>) value.getVar();
+                StringBuilder boolArr = new StringBuilder().append("{");
+                for (BooleanVar boolVar : bools.getArray())
+                    boolArr.append(formatEvalValue(Value.of(boolVar))).append(", ");
+                //remove last comma and space if present
+                if (boolArr.length() > 1)
+                    boolArr.setLength(boolArr.length() - 2);
+                boolArr.append("}");
+                return boolArr.toString();
+            case STRING_ARRAY:
+                ArrayVar<StringVar> strings = (ArrayVar<StringVar>) value.getVar();
+                StringBuilder stringArr = new StringBuilder().append("{");
+                for (StringVar stringVar : strings.getArray())
+                    stringArr.append(formatEvalValue(Value.of(stringVar))).append(", ");
+                //remove last comma and space if present
+                if (stringArr.length() > 1)
+                    stringArr.setLength(stringArr.length() - 2);
+                stringArr.append("}");
+                return stringArr.toString();
+            case INT_PRIMITIVE:
+                return String.valueOf(((IntVar) value.getVar()).getValue());
+            case BOOLEAN_PRIMITIVE:
+                return String.valueOf(((BooleanVar) value.getVar()).getValue()).toLowerCase();
+            case STRING_PRIMITIVE:
+                return "\"" + ((StringVar) value.getVar()).getValue() + "\"";
+
+        }
         return value.getVar().toString();
     }
 
     @Override
     String formatEvalVariable(Variable variable) {
         return variable.getName();
+    }
+
+    @Override
+    String formatEvalArrayAccess(ArrayAccess arrayAccess) {
+        return arrayAccess.getArray() + "[" + arrayAccess.getIndex() + "]";
+    }
+
+    @Override
+    String formatEvalArrayLength(ArrayLength arrayLength) {
+        return arrayLength.getArray() + ".length";
     }
 
     /* Static mappings */

@@ -9,7 +9,7 @@ import com.troystopera.gencode.var.Var;
 public abstract class Evaluation<T extends Var> extends Statement<T> {
 
     public enum Type {
-        COMPARISON, FUNC_CALL, OPERATION, VALUE, VARIABLE
+        COMPARISON, FUNC_CALL, OPERATION, VALUE, VARIABLE, ARRAY_ACCESS, ARRAY_LENGTH
     }
 
     private final Type type;

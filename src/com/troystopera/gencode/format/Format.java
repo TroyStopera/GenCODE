@@ -58,6 +58,10 @@ public abstract class Format {
                 return formatEvalValue((Value) evaluation);
             case VARIABLE:
                 return formatEvalVariable((Variable) evaluation);
+            case ARRAY_ACCESS:
+                return formatEvalArrayAccess((ArrayAccess) evaluation);
+            case ARRAY_LENGTH:
+                return formatEvalArrayLength((ArrayLength) evaluation);
         }
         return "";
     }
@@ -121,6 +125,10 @@ public abstract class Format {
     abstract String formatEvalValue(Value value);
 
     abstract String formatEvalVariable(Variable variable);
+
+    abstract String formatEvalArrayAccess(ArrayAccess arrayAccess);
+
+    abstract String formatEvalArrayLength(ArrayLength arrayLength);
 
     /* Indentation controls */
 

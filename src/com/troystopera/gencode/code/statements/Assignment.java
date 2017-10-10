@@ -18,19 +18,34 @@ import java.util.Optional;
 public class Assignment extends Statement<Var> {
 
     private final String var;
+    private final int index;
     private final Evaluation evaluation;
 
-    private Assignment(String var, Evaluation evaluation) {
+    private Assignment(String var, int index, Evaluation evaluation) {
         super(Statement.Type.ASSIGNMENT);
         this.var = var;
+        this.index = index;
         this.evaluation = evaluation;
+    }
+
+    public boolean isArrayIndexAssign() {
+        return index != -1;
+    }
+
+    public int getArrayIndex() {
+        return index;
     }
 
     @Override
     protected final Optional<Var> execute(ExecutorControl control, Console console, Scope scope) {
         Optional<Var> var = control.execute(evaluation, console, scope);
-        if (var.isPresent()) scope.updateVal(this.var, var.get());
-        else scope.nullVar(this.var);
+        if (var.isPresent()) {
+            if (isArrayIndexAssign()) scope.updateArrVal(this.var, index, var.get());
+            else scope.updateVal(this.var, var.get());
+        } else {
+            if (isArrayIndexAssign()) scope.nullArrVar(this.var, index);
+            else scope.nullVar(this.var);
+        }
         //doesn't return a value, just sets it
         return Optional.empty();
     }
@@ -44,25 +59,37 @@ public class Assignment extends Statement<Var> {
     }
 
     public static Assignment assign(String name, Evaluation evaluation) {
-        return new Assignment(name, evaluation);
+        return new Assignment(name, -1, evaluation);
     }
 
     public static Assignment assign(String name, String var) {
-        return new Assignment(name, Variable.of(var));
+        return new Assignment(name, -1, Variable.of(var));
     }
 
     public static Assignment assign(String name, Var var) {
-        return new Assignment(name, Value.of(var));
+        return new Assignment(name, -1, Value.of(var));
+    }
+
+    public static Assignment assignArray(String name, int index, Evaluation evaluation) {
+        return new Assignment(name, index, evaluation);
+    }
+
+    public static Assignment assignArray(String name, int index, String var) {
+        return new Assignment(name, index, Variable.of(var));
+    }
+
+    public static Assignment assignArray(String name, int index, Var var) {
+        return new Assignment(name, index, Value.of(var));
     }
 
     public static Assignment increment(String name) {
         Operation operation = Operation.addition(name, IntVar.of(1));
-        return new Assignment(name, operation);
+        return new Assignment(name, -1, operation);
     }
 
     public static Assignment decrement(String name) {
         Operation operation = Operation.subtraction(name, IntVar.of(1));
-        return new Assignment(name, operation);
+        return new Assignment(name, -1, operation);
     }
 
 }

@@ -2,6 +2,7 @@ package com.troystopera.gencode.exec;
 
 import com.troystopera.gencode.GenerationException;
 import com.troystopera.gencode.code.components.Function;
+import com.troystopera.gencode.var.ArrayVar;
 import com.troystopera.gencode.var.Var;
 
 import java.util.*;
@@ -14,6 +15,7 @@ public class Scope {
 
     private static final Random random = new Random();
 
+    //TODO: keep track of var types?
     private final Map<String, Var> vars = new HashMap<>();
     private final List<String> varNames = new ArrayList<>();
     private final Map<String, Function> funcs = new HashMap<>();
@@ -91,6 +93,13 @@ public class Scope {
         vars.remove(var);
     }
 
+    public void nullArrVar(String var, int index) {
+        ArrayVar array = (ArrayVar) getVal(var);
+        if (array.getArray().length <= index)
+            throw new GenerationException(new ArrayIndexOutOfBoundsException("Index " + index + " out of bounds"));
+        array.getArray()[index] = null;
+    }
+
     public Var getVal(String name) {
         Scope scope = this;
         while (!scope.vars.containsKey(name) && scope.hasParent()) scope = scope.getParent();
@@ -103,6 +112,22 @@ public class Scope {
         while (!scope.varNames.contains(name) && scope.hasParent()) scope = scope.getParent();
         if (scope.varNames.contains(name)) scope.vars.put(name, var);
         else throw new GenerationException(new NullPointerException("Unknown variable: " + name));
+    }
+
+    @SuppressWarnings("unchecked")
+    public Var getArrVal(String name, int index) {
+        ArrayVar<Var> array = (ArrayVar<Var>) getVal(name);
+        if (array.getArray().length <= index)
+            throw new GenerationException(new ArrayIndexOutOfBoundsException("Index " + index + " out of bounds"));
+        return array.getArray()[index];
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T extends Var> void updateArrVal(String name, int index, T var) {
+        ArrayVar<T> array = (ArrayVar<T>) getVal(name);
+        if (array.getArray().length <= index)
+            throw new GenerationException(new ArrayIndexOutOfBoundsException("Index " + index + " out of bounds"));
+        array.getArray()[index] = var;
     }
 
     public Function getFunction(String name) {

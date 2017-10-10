@@ -14,7 +14,7 @@ import java.util.Optional;
 /***
  * A class of Statement that changes the value of variables.
  */
-public class Operation extends Evaluation {
+public class Operation extends Evaluation<PrimitiveVar> {
 
     private final OperationType type;
     private final String varName;

@@ -15,7 +15,7 @@ import java.util.Optional;
 /***
  * A class of Statement that compares values and variables.
  */
-public class Comparison extends Evaluation {
+public class Comparison extends Evaluation<BooleanVar> {
 
     private final ComparisonType type;
     private final String varName;
