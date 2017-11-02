@@ -10,7 +10,7 @@ open class WeightedRandom(difficulty: Double, protected val random: Random) {
         else -> difficulty
     }
 
-    protected fun randBool(): Boolean = random.nextBoolean()
+    protected fun randBool(probability: Double = 0.5): Boolean = random.nextDouble() > probability
 
     //probability more likely if difficulty high - probability never greater than 90%
     protected fun randHardBool(difficulty: Double = this.difficulty): Boolean =

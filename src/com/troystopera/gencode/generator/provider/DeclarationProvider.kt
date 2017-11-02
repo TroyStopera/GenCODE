@@ -40,7 +40,8 @@ internal class DeclarationProvider(
             parent.addExecutable(Declaration.declareWithAssign(
                     name,
                     VarType.INT_PRIMITIVE,
-                    genIntEvaluation(record)
+                    //TODO allow for declarations to be something other than an int literal
+                    Value.of(IntVar.random(random, 100))
             ))
             record.addVar(name, VarType.INT_PRIMITIVE)
             count++
