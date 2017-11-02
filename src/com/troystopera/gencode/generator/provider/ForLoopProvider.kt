@@ -15,11 +15,11 @@ internal class ForLoopProvider(
         difficulty: Double,
         seed: Long,
         topics: Array<out ProblemTopic>
-) : CodeProvider(ProviderType.FOR_LOOP, difficulty, Random(seed), topics) {
+) : ComponentProvider(ProviderType.FOR_LOOP, difficulty, Random(seed), topics) {
 
     override fun withDifficulty(difficulty: Double): ForLoopProvider = ForLoopProvider(difficulty, random.nextLong(), topics)
 
-    override fun generate(varProvider: VariableProvider, record: GenRecord): ProviderResult {
+    override fun generate(parentType: Component.Type, varProvider: VariableProvider, record: GenRecord): ProviderResult {
         val varName = varProvider.nextVar()
         val newRecord = record.createChildRecord()
         newRecord.addVar(varName, VarType.INT_PRIMITIVE, false)

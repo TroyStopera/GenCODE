@@ -15,28 +15,25 @@ internal class ManipulationProvider(
         difficulty: Double,
         seed: Long,
         topics: Array<out ProblemTopic>
-) : CodeProvider(ProviderType.MANIPULATION, difficulty, Random(seed), topics) {
+) : StatementProvider(ProviderType.MANIPULATION, difficulty, Random(seed), topics) {
 
     override fun withDifficulty(difficulty: Double): ManipulationProvider = ManipulationProvider(difficulty, random.nextLong(), topics)
 
-    override fun generate(varProvider: VariableProvider, record: GenRecord): ProviderResult {
+    override fun populate(parent: CodeBlock, parentCompType:Component.Type, varProvider: VariableProvider, record: GenRecord) {
         if (!record.hasVarType(VarType.INT_PRIMITIVE))
             throw GenerationException(IllegalStateException("No ints in record passed to ManipulationProvider"))
-        val block = CodeBlock()
 
         var count = 0
         while (count < MIN_OPERATIONS || (count < MAX_OPERATIONS && randHardBool())) {
             val manipulateVar = record.getRandVar(VarType.INT_PRIMITIVE)
             //potentially manipulate an array with ~33% probability
             if (randHardBool(.33) && topics.contains(ProblemTopic.ARRAY) && record.hasVarType(VarType.INT_ARRAY))
-                block.addExecutable(genArrayManipulation(record))
+                parent.addExecutable(genArrayManipulation(record))
             //standard int manipulation
             else
-                block.addExecutable(Assignment.assign(manipulateVar, genIntEvaluation(record)))
+                parent.addExecutable(Assignment.assign(manipulateVar, genIntEvaluation(record)))
             count++
         }
-
-        return ProviderResult(block, emptyArray(), record)
     }
 
     private fun genArrayManipulation(record: GenRecord): Assignment {

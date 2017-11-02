@@ -16,11 +16,11 @@ internal class ConditionalProvider(
         difficulty: Double,
         seed: Long,
         topics: Array<out ProblemTopic>
-) : CodeProvider(ProviderType.CONDITIONAL, difficulty, Random(seed), topics) {
+) : ComponentProvider(ProviderType.CONDITIONAL, difficulty, Random(seed), topics) {
 
     override fun withDifficulty(difficulty: Double): ConditionalProvider = ConditionalProvider(difficulty, random.nextLong(), topics)
 
-    override fun generate(varProvider: VariableProvider, record: GenRecord): ProviderResult {
+    override fun generate(parentType:Component.Type, varProvider: VariableProvider, record: GenRecord): ProviderResult {
         val comparisons = mutableListOf<Comparison<IntVar>>()
         val blocks = mutableListOf<CodeBlock>()
         val conditional = Conditional()

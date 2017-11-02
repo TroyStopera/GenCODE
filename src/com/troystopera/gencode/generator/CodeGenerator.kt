@@ -4,6 +4,7 @@ import com.troystopera.gencode.Problem
 import com.troystopera.gencode.ProblemTopic
 import com.troystopera.gencode.ProblemType
 import com.troystopera.gencode.`var`.VarType
+import com.troystopera.gencode.code.BlankLine
 import com.troystopera.gencode.code.Component
 import com.troystopera.gencode.code.components.CodeBlock
 import com.troystopera.gencode.code.components.ForLoop
@@ -19,18 +20,18 @@ class CodeGenerator(
         vararg private val topics: ProblemTopic
 ) : WeightedRandom(difficulty, Random(seed)) {
 
-    private val providers: List<CodeProvider>
+    private val providers: List<ComponentProvider>
     private val declarationProvider = DeclarationProvider(difficulty, seed, topics)
     private val returnIntProvider = ReturnIntProvider(difficulty, random.nextLong(), topics)
     private val manipulationProvider = ManipulationProvider(difficulty, random.nextLong(), topics)
 
     init {
         val p = topics.distinct()
-                .filter { CodeProvider.hasProvider(it) }
-                .map { CodeProvider.fromTopic(it, difficulty, topics) }.toMutableList()
+                .filter { ComponentProvider.hasProvider(it) }
+                .map { ComponentProvider.fromTopic(it, difficulty, topics) }.toMutableList()
         //TODO create array provider so that there is a guarantee of having providers
         if (p.isEmpty())
-            p.add(CodeProvider.fromTopic(ProblemTopic.FOR_LOOP, difficulty, topics))
+            p.add(ComponentProvider.fromTopic(ProblemTopic.FOR_LOOP, difficulty, topics))
         providers = p
     }
 
@@ -51,12 +52,11 @@ class CodeGenerator(
         builder.setTopics(*topics)
 
         val main = Function("main", VarType.INT_PRIMITIVE)
-        val result = declarationProvider.generate(provider, rootRecord)
-        main.addExecutable(result.component)
+        declarationProvider.populate(main, Component.Type.GENERIC, provider, rootRecord)
         main.addExecutable(gen(provider, rootRecord, 1))
+        main.addExecutable(BlankLine.get())
         //add a default return to ensure a complete program
-        val returnResult = returnIntProvider.generate(provider, rootRecord)
-        main.addExecutable(returnResult.component)
+        returnIntProvider.populate(main, Component.Type.GENERIC, provider, rootRecord)
 
         builder.setMainFunction(main)
         return builder.build()
@@ -65,7 +65,7 @@ class CodeGenerator(
     private fun gen(variableProvider: VariableProvider, record: GenRecord, nestDepth: Int): Component {
         val baseComponentResult =
                 providers[randInt(0, providers.size - 1)].withDifficulty(difficulty / nestDepth)
-                        .generate(variableProvider, record)
+                        .generate(Component.Type.GENERIC, variableProvider, record)
 
         for (block in baseComponentResult.newBlocks) {
             if (nestDepth < MAX_NESTING_DEPTH && randHardBool()) {
@@ -74,15 +74,10 @@ class CodeGenerator(
                         baseComponentResult.record.createChildRecord(),
                         nestDepth + 1)
                 )
-            } else if (baseComponentResult.component is ForLoop || randEasyBool()) {
-                val manipulationResult = manipulationProvider.generate(variableProvider, baseComponentResult.record)
-                val newBlock = manipulationResult.component as CodeBlock
-                block.addExecutables(newBlock.executables)
-            } else {
-                val returnResult = returnIntProvider.generate(variableProvider, baseComponentResult.record)
-                val newBlock = returnResult.component as CodeBlock
-                block.addExecutables(newBlock.executables)
-            }
+            } else if (baseComponentResult.component is ForLoop || randEasyBool())
+                manipulationProvider.populate(block, baseComponentResult.component.type, variableProvider, baseComponentResult.record)
+            else
+                returnIntProvider.populate(block, baseComponentResult.component.type, variableProvider, baseComponentResult.record)
         }
 
         return baseComponentResult.component

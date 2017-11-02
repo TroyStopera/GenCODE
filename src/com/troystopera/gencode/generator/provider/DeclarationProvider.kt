@@ -15,19 +15,18 @@ internal class DeclarationProvider(
         difficulty: Double,
         seed: Long,
         topics: Array<out ProblemTopic>
-) : CodeProvider(ProviderType.DECLARATION, difficulty, Random(seed), topics) {
+) : StatementProvider(ProviderType.DECLARATION, difficulty, Random(seed), topics) {
 
     override fun withDifficulty(difficulty: Double): DeclarationProvider = DeclarationProvider(difficulty, random.nextLong(), topics)
 
-    override fun generate(varProvider: VariableProvider, record: GenRecord): ProviderResult {
-        val block = CodeBlock()
+    override fun populate(parent: CodeBlock, parentCompType: Component.Type, varProvider: VariableProvider, record: GenRecord) {
         var count = 0
 
         //possibly declare an array
         if (topics.contains(ProblemTopic.ARRAY) && randBool()) {
             val name = varProvider.nextVar()
             val length = randInt(MIN_ARRAY_LENGTH, MAX_ARRAY_LENGTH)
-            block.addExecutable(Declaration.declareWithAssign(
+            parent.addExecutable(Declaration.declareWithAssign(
                     name,
                     VarType.INT_ARRAY,
                     Value.of(ArrayVar.of(*Array<IntVar>(length, { IntVar.of(randInt()) })))
@@ -38,7 +37,7 @@ internal class DeclarationProvider(
         //continue declaring until random end
         while (count < MIN_DECLARATIONS || (count < MAX_DECLARATIONS && randHardBool())) {
             val name = varProvider.nextVar()
-            block.addExecutable(Declaration.declareWithAssign(
+            parent.addExecutable(Declaration.declareWithAssign(
                     name,
                     VarType.INT_PRIMITIVE,
                     genIntEvaluation(record)
@@ -46,8 +45,6 @@ internal class DeclarationProvider(
             record.addVar(name, VarType.INT_PRIMITIVE)
             count++
         }
-
-        return ProviderResult(block, emptyArray(), record)
     }
 
 }

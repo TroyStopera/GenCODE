@@ -24,7 +24,7 @@ public class Main {
         // for (int i = 2; i < args.length; i++)
         //    topics[i - 2] = ProblemTopic.valueOf(args[i]);
 
-        CodeGenerator generator = new CodeGenerator(0.9, ProblemTopic.FOR_LOOP);
+        CodeGenerator generator = new CodeGenerator(0.8, ProblemTopic.FOR_LOOP);
         Problem problem = generator.generate();
 
         System.out.println(Format.java().format(problem));

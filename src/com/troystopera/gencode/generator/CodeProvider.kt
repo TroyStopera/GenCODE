@@ -8,8 +8,6 @@ import com.troystopera.gencode.code.statements.evaluations.MathOperation
 import com.troystopera.gencode.code.statements.evaluations.OperationType
 import com.troystopera.gencode.code.statements.evaluations.Value
 import com.troystopera.gencode.code.statements.evaluations.Variable
-import com.troystopera.gencode.generator.provider.ConditionalProvider
-import com.troystopera.gencode.generator.provider.ForLoopProvider
 import java.util.*
 
 internal abstract class CodeProvider(
@@ -20,10 +18,6 @@ internal abstract class CodeProvider(
 ) : WeightedRandom(difficulty, random) {
 
     protected val easyIntEval = { Value.of(IntVar.of(randEasyInt(5, 50))) }
-
-    abstract fun generate(varProvider: VariableProvider, record: GenRecord): ProviderResult
-
-    abstract fun withDifficulty(difficulty: Double): CodeProvider
 
     protected fun genMathOperation(record: GenRecord, manipulateVar: String,
                                    opType: OperationType = RandomTypes.operationType(difficulty, random)): MathOperation {
@@ -46,26 +40,6 @@ internal abstract class CodeProvider(
             //otherwise just a simple variable
             else Variable.of(record.getRandVar(VarType.INT_PRIMITIVE))
         } else default.invoke()
-    }
-
-    internal companion object {
-
-        internal fun fromTopic(topic: ProblemTopic, difficulty: Double, topics: Array<out ProblemTopic>, seed: Long = Random().nextLong()): CodeProvider {
-            return when (topic) {
-                ProblemTopic.FOR_LOOP -> ForLoopProvider(difficulty, seed, topics)
-                ProblemTopic.CONDITIONAL -> ConditionalProvider(difficulty, seed, topics)
-                ProblemTopic.ARRAY -> throw IllegalArgumentException("No provider for arrays")
-            }
-        }
-
-        internal fun hasProvider(topic: ProblemTopic): Boolean {
-            return when (topic) {
-                ProblemTopic.FOR_LOOP -> true
-                ProblemTopic.CONDITIONAL -> true
-                ProblemTopic.ARRAY -> false
-            }
-        }
-
     }
 
 }

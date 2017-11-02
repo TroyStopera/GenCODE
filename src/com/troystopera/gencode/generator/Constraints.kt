@@ -8,8 +8,8 @@ internal const val MIN_BRANCHES = 2
 internal const val MAX_BRANCHES = 4
 
 /* Declaration  */
-internal const val MIN_DECLARATIONS = 2
-internal const val MAX_DECLARATIONS = 5
+internal const val MIN_DECLARATIONS = 1
+internal const val MAX_DECLARATIONS = 3
 internal const val MIN_ARRAY_LENGTH = 2
 internal const val MAX_ARRAY_LENGTH = 6
 
