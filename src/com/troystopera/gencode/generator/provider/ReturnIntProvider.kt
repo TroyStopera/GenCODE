@@ -19,6 +19,7 @@ internal class ReturnIntProvider(
     override fun withDifficulty(difficulty: Double): ReturnIntProvider = ReturnIntProvider(difficulty, random.nextLong(), topics)
 
     override fun populate(parent: CodeBlock, parentCompType: Component.Type, varProvider: VariableProvider, record: GenRecord) {
+        //TODO add history for returned array variables
         //50% chance of array access if possible
         if (randBool() && topics.contains(ProblemTopic.ARRAY) && record.hasVarType(VarType.INT_ARRAY)) {
             val arrName = record.getRandVar(VarType.INT_ARRAY)
@@ -27,10 +28,20 @@ internal class ReturnIntProvider(
         }
         //otherwise prefer to return a variable, but default to an easy int
         else {
-            if (record.hasVarType(VarType.INT_PRIMITIVE))
-                parent.addExecutable(Return.returnStmt(record.getRandVar(VarType.INT_PRIMITIVE)))
-            else
-                parent.addExecutable(Return.returnStmt(Var.random(VarType.INT_PRIMITIVE, random)))
+            when {
+            //always prefer to return a variable that hasn't been returned yet
+                record.hasVarType(VarType.INT_PRIMITIVE, *record.history.getReturnedVars()) -> {
+                    val varName = record.getRandVar(VarType.INT_PRIMITIVE, *record.history.getReturnedVars())!!
+                    parent.addExecutable(Return.returnStmt(varName))
+                    record.history.addReturnedVar(varName)
+                }
+            //otherwise try for a variable that has been returned
+                record.hasVarType(VarType.INT_PRIMITIVE) ->
+                    parent.addExecutable(Return.returnStmt(record.getRandVar(VarType.INT_PRIMITIVE)))
+            //default to int literal
+                else ->
+                    parent.addExecutable(Return.returnStmt(Var.random(VarType.INT_PRIMITIVE, random)))
+            }
         }
     }
 

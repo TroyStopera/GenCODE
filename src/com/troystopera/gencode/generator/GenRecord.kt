@@ -4,6 +4,7 @@ import com.troystopera.gencode.`var`.VarType
 import java.util.*
 
 class GenRecord private constructor(
+        val history: History,
         private val parent: GenRecord?,
         private val depth: Int,
         private val random: Random
@@ -13,9 +14,9 @@ class GenRecord private constructor(
     private val arrayLengths = hashMapOf<String, Int>()
     private val exclude = hashSetOf<String>()
 
-    constructor() : this(null, 0, Random())
+    constructor() : this(History(), null, 0, Random())
 
-    constructor(seed: Long) : this(null, 0, Random(seed))
+    constructor(seed: Long) : this(History(), null, 0, Random(seed))
 
     fun addArrVar(name: String, type: VarType, length: Int) {
         assert(!type.isPrimitive)
@@ -57,6 +58,13 @@ class GenRecord private constructor(
         return set
     }
 
-    fun createChildRecord(): GenRecord = GenRecord(this, depth + 1, random)
+    fun createChildRecord(): GenRecord = GenRecord(history, this, depth + 1, random)
+
+    class History {
+        private val returnedVars = mutableSetOf<String>()
+
+        fun addReturnedVar(name: String) = returnedVars.add(name)
+        fun getReturnedVars(): Array<String> = returnedVars.toTypedArray()
+    }
 
 }
