@@ -27,7 +27,7 @@ public class ArrayLength extends Evaluation<IntVar> {
 
     @Override
     protected Optional<IntVar> execute(ExecutorControl control, Console console, Scope scope) {
-        ArrayVar array = (ArrayVar) scope.getVal(this.array);
+        ArrayVar array = (ArrayVar) scope.getVar(this.array);
         return Optional.of(IntVar.of(array.length()));
     }
 

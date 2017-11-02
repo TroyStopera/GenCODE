@@ -173,11 +173,11 @@ public class JavaFormat extends Format {
 
     @Override
     String formatEvalComparison(Comparison comparison) {
-        return comparison.getVarName() +
+        return formatEval(comparison.getLeft()) +
                 " " +
                 compTypeString(comparison.getCompType()) +
                 " " +
-                formatEval(comparison.getEvaluation());
+                formatEval(comparison.getRight());
     }
 
     @Override
@@ -199,12 +199,12 @@ public class JavaFormat extends Format {
     }
 
     @Override
-    String formatEvalOperation(Operation operation) {
-        return operation.getVarName() +
+    String formatEvalOperation(MathOperation mathOperation) {
+        return mathOperation.getVarName() +
                 " " +
-                opTypeString(operation.getOpType()) +
+                opTypeString(mathOperation.getOpType()) +
                 " " +
-                formatEval(operation.getEvaluation());
+                formatEval(mathOperation.getEvaluation());
     }
 
     @SuppressWarnings("unchecked")
@@ -295,7 +295,7 @@ public class JavaFormat extends Format {
             case SUBTRACTION:
                 return "-";
             case MULTIPLICATION:
-                return "+";
+                return "*";
             case DIVISION:
                 return "/";
             case MODULUS:

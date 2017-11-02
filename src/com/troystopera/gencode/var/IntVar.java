@@ -2,6 +2,7 @@ package com.troystopera.gencode.var;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Random;
 
 import static com.troystopera.gencode.var.VarType.INT_PRIMITIVE;
 
@@ -16,7 +17,7 @@ public class IntVar extends PrimitiveVar<Integer> {
         super(INT_PRIMITIVE, val);
     }
 
-    public static IntVar random(int max) {
+    public static IntVar random(Random random, int max) {
         return new IntVar(random.nextInt(max + 1));
     }
 

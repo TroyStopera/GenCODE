@@ -5,6 +5,6 @@ package com.troystopera.gencode;
  */
 public enum ProblemType {
 
-    RETURN_VALUE, PRINT_OUT, MISSING_CODE
+    RETURN_VALUE
 
 }

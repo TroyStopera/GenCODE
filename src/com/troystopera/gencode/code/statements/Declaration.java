@@ -46,7 +46,7 @@ public class Declaration extends Statement<Var> {
 
     @Override
     protected final Optional<Var> execute(ExecutorControl control, Console console, Scope scope) {
-        scope.addVar(var);
+        scope.addVar(var, null);
         //execute assignment
         if (hasAssignment()) control.execute(Assignment.assign(var, evaluation), console, scope);
         //no logical value to return

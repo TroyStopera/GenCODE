@@ -1,7 +1,8 @@
 package com.troystopera.gencode.code.statements;
 
 import com.troystopera.gencode.code.Statement;
-import com.troystopera.gencode.code.statements.evaluations.Operation;
+import com.troystopera.gencode.code.statements.evaluations.MathOperation;
+import com.troystopera.gencode.code.statements.evaluations.OperationType;
 import com.troystopera.gencode.code.statements.evaluations.Value;
 import com.troystopera.gencode.code.statements.evaluations.Variable;
 import com.troystopera.gencode.exec.Console;
@@ -40,8 +41,8 @@ public class Assignment extends Statement<Var> {
     protected final Optional<Var> execute(ExecutorControl control, Console console, Scope scope) {
         Optional<Var> var = control.execute(evaluation, console, scope);
         if (var.isPresent()) {
-            if (isArrayIndexAssign()) scope.updateArrVal(this.var, index, var.get());
-            else scope.updateVal(this.var, var.get());
+            if (isArrayIndexAssign()) scope.setArrVar(this.var, index, var.get());
+            else scope.setVar(this.var, var.get());
         } else {
             if (isArrayIndexAssign()) scope.nullArrVar(this.var, index);
             else scope.nullVar(this.var);
@@ -83,13 +84,13 @@ public class Assignment extends Statement<Var> {
     }
 
     public static Assignment increment(String name) {
-        Operation operation = Operation.addition(name, IntVar.of(1));
-        return new Assignment(name, -1, operation);
+        MathOperation mathOperation = new MathOperation(OperationType.ADDITION, name, IntVar.of(1));
+        return new Assignment(name, -1, mathOperation);
     }
 
     public static Assignment decrement(String name) {
-        Operation operation = Operation.subtraction(name, IntVar.of(1));
-        return new Assignment(name, -1, operation);
+        MathOperation mathOperation = new MathOperation(OperationType.SUBTRACTION, name, IntVar.of(1));
+        return new Assignment(name, -1, mathOperation);
     }
 
 }

@@ -53,7 +53,7 @@ public abstract class Format {
             case FUNC_CALL:
                 return formatEvalFuncCall((FunctionCall) evaluation);
             case OPERATION:
-                return formatEvalOperation((Operation) evaluation);
+                return formatEvalOperation((MathOperation) evaluation);
             case VALUE:
                 return formatEvalValue((Value) evaluation);
             case VARIABLE:
@@ -120,7 +120,7 @@ public abstract class Format {
 
     abstract String formatEvalFuncCall(FunctionCall functionCall);
 
-    abstract String formatEvalOperation(Operation operation);
+    abstract String formatEvalOperation(MathOperation mathOperation);
 
     abstract String formatEvalValue(Value value);
 

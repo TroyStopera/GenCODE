@@ -32,7 +32,7 @@ public class ArrayAccess extends Evaluation<Var> {
 
     @Override
     protected Optional<Var> execute(ExecutorControl control, Console console, Scope scope) {
-        return Optional.of(scope.getArrVal(array, index));
+        return Optional.of(scope.getArrVar(array, index));
     }
 
     public static ArrayAccess access(String array, int index) {

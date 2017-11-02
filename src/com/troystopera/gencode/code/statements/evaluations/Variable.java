@@ -4,13 +4,14 @@ import com.troystopera.gencode.code.statements.Evaluation;
 import com.troystopera.gencode.exec.Console;
 import com.troystopera.gencode.exec.ExecutorControl;
 import com.troystopera.gencode.exec.Scope;
+import com.troystopera.gencode.var.Var;
 
 import java.util.Optional;
 
 /**
  * Evaluating a variable value.
  */
-public class Variable extends Evaluation {
+public class Variable<T extends Var> extends Evaluation<T> {
 
     private final String varName;
 
@@ -23,13 +24,14 @@ public class Variable extends Evaluation {
         return varName;
     }
 
-    public static Variable of(String varName) {
-        return new Variable(varName);
+    public static <T extends Var> Variable<T> of(String varName) {
+        return new Variable<>(varName);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    protected Optional execute(ExecutorControl control, Console console, Scope scope) {
-        return Optional.of(scope.getVal(varName));
+    protected Optional<T> execute(ExecutorControl control, Console console, Scope scope) {
+        return Optional.of((T) scope.getVar(varName));
     }
 
 }

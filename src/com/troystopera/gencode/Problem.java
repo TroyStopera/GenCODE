@@ -13,13 +13,13 @@ public class Problem {
 
     private final Function mainFunction;
     private final List<Function> functions = new LinkedList<>();
-    private final ProblemTopic topic;
+    private final ProblemTopic[] topics;
     private final ProblemType type;
 
-    public Problem(Function mainFunction, Collection<Function> functions, ProblemTopic topic, ProblemType type) {
+    public Problem(Function mainFunction, Collection<Function> functions, ProblemTopic[] topics, ProblemType type) {
         this.mainFunction = mainFunction;
         this.functions.addAll(functions);
-        this.topic = topic;
+        this.topics = topics;
         this.type = type;
     }
 
@@ -35,23 +35,23 @@ public class Problem {
 
         private Function mainFunction;
         private final Collection<Function> functions = new LinkedList<>();
-        private ProblemTopic topic;
+        private ProblemTopic[] topics;
         private ProblemType type;
 
         public void setMainFunction(Function mainFunction) {
             this.mainFunction = mainFunction;
         }
 
-        public void addFunctions(Collection<Function> executables) {
+        public void addAuxFunctions(Collection<Function> executables) {
             this.functions.addAll(executables);
         }
 
-        public void addFunction(Function executable) {
+        public void addAuxFunction(Function executable) {
             this.functions.add(executable);
         }
 
-        public void setTopic(ProblemTopic topic) {
-            this.topic = topic;
+        public void setTopics(ProblemTopic... topics) {
+            this.topics = topics;
         }
 
         public void setType(ProblemType type) {
@@ -60,7 +60,7 @@ public class Problem {
 
         public Problem build() {
             functions.add(mainFunction);
-            return new Problem(mainFunction, functions, topic, type);
+            return new Problem(mainFunction, functions, topics, type);
         }
 
     }

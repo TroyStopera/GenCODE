@@ -29,15 +29,15 @@ public class WhileLoop extends CodeBlock {
     @Override
     protected final Optional<Var> execute(ExecutorControl control, Console console, Scope scope) {
         if (isDoWhile) do {
-            //make sure to create a new scope for code that executes within the while block
-            Optional<Var> var = super.execute(control, console, scope.newChildScope());
+            //make sure to create a new record for code that executes within the while block
+            Optional<Var> var = super.execute(control, console, scope.createChildScope());
             //stop execution at a return statement
             if (var.isPresent()) return var;
         } while (control.evaluate(comparison, console, scope).get().getValue());
 
         else while (control.evaluate(comparison, console, scope).get().getValue()) {
-            //make sure to create a new scope for code that executes within the while block
-            Optional<Var> var = super.execute(control, console, scope.newChildScope());
+            //make sure to create a new record for code that executes within the while block
+            Optional<Var> var = super.execute(control, console, scope.createChildScope());
             //stop execution at a return statement
             if (var.isPresent()) return var;
         }

@@ -7,6 +7,7 @@ import com.troystopera.gencode.exec.Console;
 import com.troystopera.gencode.exec.ExecutorControl;
 import com.troystopera.gencode.exec.Scope;
 import com.troystopera.gencode.var.BooleanVar;
+import com.troystopera.gencode.var.IntVar;
 import com.troystopera.gencode.var.PrimitiveVar;
 import com.troystopera.gencode.var.Var;
 
@@ -15,26 +16,27 @@ import java.util.Optional;
 /***
  * A class of Statement that compares values and variables.
  */
-public class Comparison extends Evaluation<BooleanVar> {
+public class Comparison<T extends PrimitiveVar> extends Evaluation<BooleanVar> {
 
     private final ComparisonType type;
-    private final String varName;
-    private Evaluation evaluation;
+    private Evaluation<T> left, right;
 
-    private Comparison(ComparisonType type, String varName, Evaluation evaluation) {
+    public Comparison(ComparisonType type, Evaluation<T> left, Evaluation<T> right) {
         super(Type.COMPARISON);
         this.type = type;
-        this.varName = varName;
-        this.evaluation = evaluation;
+        this.left = left;
+        this.right = right;
     }
 
     @Override
     protected final Optional<BooleanVar> execute(ExecutorControl control, Console console, Scope scope) {
-        Optional<Var> optVar = control.execute(evaluation, console, scope);
-        if (!optVar.isPresent()) throw new GenerationException(new NullPointerException("Null value in operation"));
+        Optional<Var> leftOpt = control.execute(left, console, scope);
+        Optional<Var> rightOpt = control.execute(right, console, scope);
+        if (!rightOpt.isPresent() || !leftOpt.isPresent())
+            throw new GenerationException(new NullPointerException("Null value in operation"));
 
-        Var var1 = scope.getVal(varName);
-        Var var2 = optVar.get();
+        Var var1 = leftOpt.get();
+        Var var2 = rightOpt.get();
 
         if (!var1.getType().isPrimitive || !var2.getType().isPrimitive)
             throw new GenerationException(new IllegalArgumentException("Non-primitive var used in comparison"));
@@ -67,60 +69,12 @@ public class Comparison extends Evaluation<BooleanVar> {
         return type;
     }
 
-    public String getVarName() {
-        return varName;
+    public Evaluation getLeft() {
+        return left;
     }
 
-    public Evaluation getEvaluation() {
-        return evaluation;
-    }
-
-    public static Comparison greaterThan(String name, String name1) {
-        return new Comparison(ComparisonType.GREATER_THEN, name, Variable.of(name1));
-    }
-
-    public static Comparison greaterThan(String name, Var var) {
-        return new Comparison(ComparisonType.GREATER_THEN, name, Value.of(var));
-    }
-
-    public static Comparison lessThan(String name, String name1) {
-        return new Comparison(ComparisonType.LESS_THAN, name, Variable.of(name1));
-    }
-
-    public static Comparison lessThan(String name, Var var) {
-        return new Comparison(ComparisonType.LESS_THAN, name, Value.of(var));
-    }
-
-    public static Comparison equalTo(String name, String name1) {
-        return new Comparison(ComparisonType.EQUAL_TO, name, Variable.of(name1));
-    }
-
-    public static Comparison equalTo(String name, Var var) {
-        return new Comparison(ComparisonType.EQUAL_TO, name, Value.of(var));
-    }
-
-    public static Comparison notEqualTo(String name, String name1) {
-        return new Comparison(ComparisonType.NOT_EQUAL_TO, name, Variable.of(name1));
-    }
-
-    public static Comparison notEqualTo(String name, Var var) {
-        return new Comparison(ComparisonType.NOT_EQUAL_TO, name, Value.of(var));
-    }
-
-    public static Comparison greaterThanEqual(String name, String name1) {
-        return new Comparison(ComparisonType.GREATER_THEN_EQUAL, name, Variable.of(name1));
-    }
-
-    public static Comparison greaterThanEqual(String name, Var var) {
-        return new Comparison(ComparisonType.GREATER_THEN_EQUAL, name, Value.of(var));
-    }
-
-    public static Comparison lessThanEqual(String name, String name1) {
-        return new Comparison(ComparisonType.LESS_THAN_EQUAL, name, Variable.of(name1));
-    }
-
-    public static Comparison lessThanEqual(String name, Var var) {
-        return new Comparison(ComparisonType.LESS_THAN_EQUAL, name, Value.of(var));
+    public Evaluation getRight() {
+        return right;
     }
 
 }

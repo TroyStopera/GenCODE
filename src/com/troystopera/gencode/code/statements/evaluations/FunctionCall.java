@@ -34,8 +34,8 @@ public class FunctionCall extends Evaluation<Var> {
 
     @Override
     protected final Optional<Var> execute(ExecutorControl control, Console console, Scope scope) {
-        if (scope.containsFunction(function)) {
-            Function fn = scope.getFunction(function);
+        if (scope.hasFun(function)) {
+            Function fn = scope.getFun(function);
             Function.Argument[] argNames = fn.getArgs();
 
             //safety check
@@ -43,13 +43,13 @@ public class FunctionCall extends Evaluation<Var> {
                 throw new GenerationException(new IllegalArgumentException("Wrong number of arguments passed to function"));
             }
 
-            //set the new scope to have proper values for their arguments
+            //set the new record to have proper values for their arguments
             for (int i = 0; i < args.length; i++) {
                 Optional<Var> var = control.execute(args[i], console, scope);
                 if (var.isPresent()) scope.addVar(argNames[i].name, var.get());
             }
 
-            return control.execute(fn, console, scope.newChildScope());
+            return control.execute(fn, console, scope.createChildScope());
         } else return Optional.empty();
     }
 

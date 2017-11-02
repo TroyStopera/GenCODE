@@ -41,15 +41,16 @@ public class Conditional extends Component {
         for (Map.Entry<Comparison, CodeBlock> entry : branches.entrySet()) {
             Optional<BooleanVar> result = control.evaluate(entry.getKey(), console, scope);
             if (result.isPresent()) {
-                //make sure to create a new scope for code that executes within the conditional block
-                if (result.get().getValue()) return control.execute(entry.getValue(), console, scope.newChildScope());
+                //make sure to create a new record for code that executes within the conditional block
+                if (result.get().getValue())
+                    return control.execute(entry.getValue(), console, scope.createChildScope());
             }
         }
         if (elseBlock != null) {
             if (branches.isEmpty())
                 throw new GenerationException(new IllegalStateException("Conditional was generated with only an else block"));
-            //make sure to create a new scope for code that executes within the else block
-            return control.execute(elseBlock, console, scope.newChildScope());
+            //make sure to create a new record for code that executes within the else block
+            return control.execute(elseBlock, console, scope.createChildScope());
         }
         return Optional.empty();
     }

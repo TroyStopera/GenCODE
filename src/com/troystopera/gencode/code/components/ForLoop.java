@@ -4,6 +4,7 @@ import com.troystopera.gencode.GenerationException;
 import com.troystopera.gencode.code.statements.Assignment;
 import com.troystopera.gencode.code.statements.Declaration;
 import com.troystopera.gencode.code.statements.evaluations.Comparison;
+import com.troystopera.gencode.code.statements.evaluations.Variable;
 import com.troystopera.gencode.exec.Console;
 import com.troystopera.gencode.exec.ExecutorControl;
 import com.troystopera.gencode.exec.Scope;
@@ -18,7 +19,7 @@ public class ForLoop extends CodeBlock {
 
     private final Comparison comparison;
     private final Assignment opAssignment;
-    //one or the other, for either using a var from current scope or creating one in loop declaration
+    //one or the other, for either using a var from current record or creating one in loop declaration
     private final Assignment assignment;
     private final Declaration declaration;
 
@@ -46,11 +47,11 @@ public class ForLoop extends CodeBlock {
         else control.execute(declaration, console, scope);
 
         while (control.evaluate(comparison, console, scope).get().getValue()) {
-            //make sure to create a new scope for code that executes within the loop block
-            Optional<Var> var = super.execute(control, console, scope.newChildScope());
+            //make sure to create a new record for code that executes within the loop block
+            Optional<Var> var = super.execute(control, console, scope.createChildScope());
+            control.execute(opAssignment, console, scope);
             //stop execution at a return statement
             if (var.isPresent()) return var;
-            control.execute(opAssignment, console, scope);
         }
         return Optional.empty();
     }

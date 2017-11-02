@@ -5,13 +5,14 @@ import com.troystopera.gencode.exec.Console;
 import com.troystopera.gencode.exec.ExecutorControl;
 import com.troystopera.gencode.exec.Scope;
 import com.troystopera.gencode.var.Var;
+import com.troystopera.gencode.var.VarType;
 
 import java.util.Optional;
 
 /**
  * Evaluation of a value literal.
  */
-public class Value extends Evaluation {
+public class Value<T extends Var> extends Evaluation<T> {
 
     private final Var var;
 
@@ -24,8 +25,8 @@ public class Value extends Evaluation {
         return var;
     }
 
-    public static Value of(Var var) {
-        return new Value(var);
+    public static <T extends Var> Value<T> of(T var) {
+        return new Value<>(var);
     }
 
     @Override

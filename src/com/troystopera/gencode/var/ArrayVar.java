@@ -44,36 +44,36 @@ public class ArrayVar<T extends Var> extends Var {
     }
 
     public static ArrayVar<IntVar> of(IntVar... array) {
-        return new ArrayVar<>(VarType.INT_PRIMITIVE, array);
+        return new ArrayVar<>(VarType.INT_ARRAY, array);
     }
 
     public static ArrayVar<BooleanVar> of(BooleanVar... array) {
-        return new ArrayVar<>(VarType.BOOLEAN_PRIMITIVE, array);
+        return new ArrayVar<>(VarType.BOOLEAN_ARRAY, array);
     }
 
     public static ArrayVar<StringVar> of(StringVar... array) {
-        return new ArrayVar<>(VarType.STRING_PRIMITIVE, array);
+        return new ArrayVar<>(VarType.STRING_ARRAY, array);
     }
 
     public static ArrayVar<IntVar> of(int... array) {
         IntVar[] varArray = new IntVar[array.length];
         for (int i = 0; i < array.length; i++)
             varArray[i] = IntVar.of(array[i]);
-        return new ArrayVar<>(VarType.INT_PRIMITIVE, varArray);
+        return new ArrayVar<>(VarType.INT_ARRAY, varArray);
     }
 
     public static ArrayVar<BooleanVar> of(boolean... array) {
         BooleanVar[] varArray = new BooleanVar[array.length];
         for (int i = 0; i < array.length; i++)
             varArray[i] = BooleanVar.of(array[i]);
-        return new ArrayVar<>(VarType.BOOLEAN_PRIMITIVE, varArray);
+        return new ArrayVar<>(VarType.BOOLEAN_ARRAY, varArray);
     }
 
     public static ArrayVar<StringVar> of(String... array) {
         StringVar[] varArray = new StringVar[array.length];
         for (int i = 0; i < array.length; i++)
             varArray[i] = StringVar.of(array[i]);
-        return new ArrayVar<>(VarType.STRING_PRIMITIVE, varArray);
+        return new ArrayVar<>(VarType.STRING_ARRAY, varArray);
     }
 
 }

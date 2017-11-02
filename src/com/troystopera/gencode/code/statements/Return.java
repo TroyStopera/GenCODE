@@ -39,8 +39,8 @@ public class Return extends Statement<Var> {
                 else console.setReturn(null);
                 return var;
             case OPERATION:
-                Operation operation = (Operation) evaluation;
-                var = control.execute(operation, console, scope);
+                MathOperation mathOperation = (MathOperation) evaluation;
+                var = control.execute(mathOperation, console, scope);
                 if (var.isPresent()) console.setReturn(var.get());
                 else console.setReturn(null);
                 return var;

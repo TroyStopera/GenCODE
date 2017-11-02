@@ -1,4 +1,4 @@
-package com.troystopera.gencode.gen;
+package com.troystopera.gencode.generator;
 
 import java.util.Arrays;
 
@@ -7,12 +7,12 @@ import java.util.Arrays;
     variables, however two instances will generate the same variables in the same order.
         The order of vars is as follows: a, b, c... aa, ab, ac... ba, bb, bc...
  */
-class VariableProvider {
+public class VariableProvider {
 
     private char[] prefix = new char[0];
     private char nextVarChar = 'a';
 
-    String nextVar() {
+    public String nextVar() {
         //generate the variable first, then adjust to next values accordingly
         String nextVar = (prefix.length == 0 ? "" : new String(prefix)) + Character.toString(nextVarChar);
 

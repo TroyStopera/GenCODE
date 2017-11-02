@@ -10,48 +10,49 @@ import com.troystopera.gencode.var.StringVar;
  */
 public class Operations {
 
-    public static PrimitiveVar add(PrimitiveVar v1, PrimitiveVar v2) {
+    @SuppressWarnings("unchecked")
+    public static <T extends PrimitiveVar> T add(T v1, T v2) {
         switch (v1.getType()) {
             case INT_PRIMITIVE:
-                return IntVar.of((int) v1.getValue() + (int) v2.getValue());
+                return (T) IntVar.of((int) v1.getValue() + (int) v2.getValue());
             case STRING_PRIMITIVE:
-                return StringVar.of(v1.getValue().toString() + v2.getValue().toString());
+                return (T) StringVar.of(v1.getValue().toString() + v2.getValue().toString());
             default:
                 throw new GenerationException(new UnsupportedOperationException("Cannot add type: " + v1.getType()));
         }
     }
 
-    public static PrimitiveVar subtract(PrimitiveVar v1, PrimitiveVar v2) {
+    public static IntVar subtract(IntVar v1, IntVar v2) {
         switch (v1.getType()) {
             case INT_PRIMITIVE:
-                return IntVar.of((int) v1.getValue() - (int) v2.getValue());
+                return IntVar.of(v1.getValue() - v2.getValue());
             default:
                 throw new GenerationException(new UnsupportedOperationException("Cannot subtract type: " + v1.getType()));
         }
     }
 
-    public static PrimitiveVar multiply(PrimitiveVar v1, PrimitiveVar v2) {
+    public static IntVar multiply(IntVar v1, IntVar v2) {
         switch (v1.getType()) {
             case INT_PRIMITIVE:
-                return IntVar.of((int) v1.getValue() * (int) v2.getValue());
+                return IntVar.of(v1.getValue() * v2.getValue());
             default:
                 throw new GenerationException(new UnsupportedOperationException("Cannot multiply type: " + v1.getType()));
         }
     }
 
-    public static PrimitiveVar divide(PrimitiveVar v1, PrimitiveVar v2) {
+    public static IntVar divide(IntVar v1, IntVar v2) {
         switch (v1.getType()) {
             case INT_PRIMITIVE:
-                return IntVar.of((int) v1.getValue() / (int) v2.getValue());
+                return IntVar.of(v1.getValue() / v2.getValue());
             default:
                 throw new GenerationException(new UnsupportedOperationException("Cannot divide type: " + v1.getType()));
         }
     }
 
-    public static PrimitiveVar modulo(PrimitiveVar v1, PrimitiveVar v2) {
+    public static IntVar modulo(IntVar v1, IntVar v2) {
         switch (v1.getType()) {
             case INT_PRIMITIVE:
-                return IntVar.of((int) v1.getValue() % (int) v2.getValue());
+                return IntVar.of(v1.getValue() % v2.getValue());
             default:
                 throw new GenerationException(new UnsupportedOperationException("Cannot modulo type: " + v1.getType()));
         }
