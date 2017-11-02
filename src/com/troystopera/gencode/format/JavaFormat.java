@@ -56,7 +56,9 @@ public class JavaFormat extends Format {
         StringBuilder builder = new StringBuilder();
         builder.append(getIndent());
 
+        boolean first = true;
         for (Map.Entry<Comparison, CodeBlock> branch : conditional.getBranches()) {
+            if (!first) builder.append("else ");
             builder.append("if (");
             builder.append(formatEvalComparison(branch.getKey()));
             builder.append(") {\n");
@@ -66,6 +68,8 @@ public class JavaFormat extends Format {
             changeIndent(-1);
             builder.append(getIndent());
             builder.append("} ");
+
+            first = false;
         }
 
         if (conditional.hasElseBlock()) {
