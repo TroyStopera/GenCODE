@@ -53,8 +53,8 @@ class CodeGenerator(
 
         val main = Function("main", VarType.INT_PRIMITIVE)
         declarationProvider.populate(main, Component.Type.GENERIC, provider, rootRecord)
-        main.addExecutable(gen(provider, rootRecord, 1))
         main.addExecutable(BlankLine.get())
+        main.addExecutable(gen(provider, rootRecord, 1))
         //add a default return to ensure a complete program
         returnIntProvider.populate(main, Component.Type.GENERIC, provider, rootRecord)
 

@@ -32,13 +32,15 @@ internal abstract class CodeProvider(
         }
     }
 
-    protected fun genIntEvaluation(record: GenRecord, default: () -> Evaluation<IntVar> = easyIntEval): Evaluation<IntVar> {
+    protected fun genIntEvaluation(record: GenRecord, vararg ignore: String): Evaluation<IntVar> = genIntEvaluation(record, easyIntEval, *ignore)
+
+    protected fun genIntEvaluation(record: GenRecord, default: () -> Evaluation<IntVar>, vararg ignore: String): Evaluation<IntVar> {
         //if random bool and an int in record
-        return if (randBool() && record.hasVarType(VarType.INT_PRIMITIVE)) {
+        return if (randBool() && record.hasVarType(VarType.INT_PRIMITIVE, *ignore)) {
             //hard chance of using a math operation
-            if (randHardBool()) genMathOperation(record, record.getRandVar(VarType.INT_PRIMITIVE)!!)
+            if (randHardBool()) genMathOperation(record, record.getRandVar(VarType.INT_PRIMITIVE, *ignore)!!)
             //otherwise just a simple variable
-            else Variable.of(record.getRandVar(VarType.INT_PRIMITIVE))
+            else Variable.of(record.getRandVar(VarType.INT_PRIMITIVE, *ignore))
         } else default.invoke()
     }
 

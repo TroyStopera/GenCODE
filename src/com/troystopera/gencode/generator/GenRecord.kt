@@ -35,12 +35,17 @@ class GenRecord private constructor(
 
     fun hasVar(name: String): Boolean = vars.minus(exclude).contains(name) || parent?.hasVar(name) ?: false
 
-    fun hasVarType(type: VarType): Boolean = vars.minus(exclude).containsValue(type) || parent?.hasVarType(type) ?: false
+    fun hasVarType(type: VarType, vararg ignore: String): Boolean = vars.minus(exclude).minus(ignore).containsValue(type)
+            || parent?.hasVarType(type, *ignore) ?: false
 
-    fun getRandVar(type: VarType, maxDepth: Int = depth): String? = getRandVar(arrayOf(type), maxDepth)
+    fun getRandVar(type: VarType, vararg ignore: String): String? = getRandVar(arrayOf(type), depth, *ignore)
 
-    fun getRandVar(types: Array<VarType>, maxDepth: Int = depth): String? {
-        val all = getAllVars(types, maxDepth)
+    fun getRandVar(type: VarType, maxDepth: Int, vararg ignore: String): String? = getRandVar(arrayOf(type), maxDepth, *ignore)
+
+    fun getRandVar(types: Array<VarType>, vararg ignore: String): String? = getRandVar(types, depth, *ignore)
+
+    fun getRandVar(types: Array<VarType>, maxDepth: Int, vararg ignore: String): String? {
+        val all = getAllVars(types, maxDepth).minus(ignore)
         return if (all.isEmpty()) null else all.elementAt(random.nextInt(all.size))
     }
 

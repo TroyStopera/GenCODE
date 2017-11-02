@@ -25,13 +25,12 @@ internal class ReturnIntProvider(
             val length = record.getArrLength(arrName!!)
             parent.addExecutable(Return.returnStmt(ArrayAccess.access(arrName, randInt(0, length - 1))))
         }
-        //on easier difficulty return a literal value
-        else if (randEasyBool() || !record.hasVarType(VarType.INT_PRIMITIVE)) {
-            parent.addExecutable(Return.returnStmt(Var.random(VarType.INT_PRIMITIVE, random)))
-        }
-        //otherwise return a variable
+        //otherwise prefer to return a variable, but default to an easy int
         else {
-            parent.addExecutable(Return.returnStmt(record.getRandVar(VarType.INT_PRIMITIVE)))
+            if (record.hasVarType(VarType.INT_PRIMITIVE))
+                parent.addExecutable(Return.returnStmt(record.getRandVar(VarType.INT_PRIMITIVE)))
+            else
+                parent.addExecutable(Return.returnStmt(Var.random(VarType.INT_PRIMITIVE, random)))
         }
     }
 

@@ -25,13 +25,13 @@ internal class ManipulationProvider(
 
         var count = 0
         while (count < MIN_OPERATIONS || (count < MAX_OPERATIONS && randHardBool())) {
-            val manipulateVar = record.getRandVar(VarType.INT_PRIMITIVE)
+            val manipulateVar = record.getRandVar(VarType.INT_PRIMITIVE)!!
             //potentially manipulate an array with ~33% probability
             if (randHardBool(.33) && topics.contains(ProblemTopic.ARRAY) && record.hasVarType(VarType.INT_ARRAY))
                 parent.addExecutable(genArrayManipulation(record))
             //standard int manipulation
             else
-                parent.addExecutable(Assignment.assign(manipulateVar, genIntEvaluation(record)))
+                parent.addExecutable(Assignment.assign(manipulateVar, genIntEvaluation(record, manipulateVar)))
             count++
         }
     }

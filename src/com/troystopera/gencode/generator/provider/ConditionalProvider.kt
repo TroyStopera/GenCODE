@@ -6,9 +6,10 @@ import com.troystopera.gencode.`var`.VarType
 import com.troystopera.gencode.code.Component
 import com.troystopera.gencode.code.components.CodeBlock
 import com.troystopera.gencode.code.components.Conditional
+import com.troystopera.gencode.code.statements.Evaluation
 import com.troystopera.gencode.code.statements.evaluations.Comparison
+import com.troystopera.gencode.code.statements.evaluations.ComparisonType
 import com.troystopera.gencode.code.statements.evaluations.Variable
-import com.troystopera.gencode.exec.Executable
 import com.troystopera.gencode.generator.*
 import java.util.*
 
@@ -20,26 +21,18 @@ internal class ConditionalProvider(
 
     override fun withDifficulty(difficulty: Double): ConditionalProvider = ConditionalProvider(difficulty, random.nextLong(), topics)
 
-    override fun generate(parentType:Component.Type, varProvider: VariableProvider, record: GenRecord): ProviderResult {
+    override fun generate(parentType: Component.Type, varProvider: VariableProvider, record: GenRecord): ProviderResult {
         val comparisons = mutableListOf<Comparison<IntVar>>()
         val blocks = mutableListOf<CodeBlock>()
         val conditional = Conditional()
 
         //TODO() Add conditional ints (such as matching ints)
 
-        //used to prevent conditionals comparing two int literals
-        val defaultIntEval = {
-            if (record.hasVarType(VarType.INT_PRIMITIVE))
-                Variable.of<IntVar>(record.getRandVar(VarType.INT_PRIMITIVE))
-            else easyIntEval.invoke()
+        while (comparisons.size < MIN_BRANCHES || (comparisons.size < MAX_BRANCHES && randHardBool())) {
+            val compType = RandomTypes.comparisonType(random)
+            val eval = genEval(compType, record)
+            comparisons.add(Comparison(compType, eval.first, eval.second))
         }
-
-        while (comparisons.size < MIN_BRANCHES || (comparisons.size < MAX_BRANCHES && randHardBool()))
-            comparisons.add(Comparison(
-                    RandomTypes.comparisonType(random),
-                    genIntEvaluation(record, defaultIntEval),
-                    genIntEvaluation(record)
-            ))
 
         //determine whether to add an else branch
         if (randBool()) {
@@ -60,6 +53,30 @@ internal class ConditionalProvider(
         }
 
         return ProviderResult(conditional, blocks.toTypedArray(), record)
+    }
+
+    private fun genEval(compType: ComparisonType, record: GenRecord): Pair<Evaluation<IntVar>, Evaluation<IntVar>> {
+        //the name of the int variable to compare
+        val name = record.getRandVar(VarType.INT_PRIMITIVE)!!
+
+        //for '>' and '<' allow for a chance to compare the variable to itself
+        if ((compType == ComparisonType.GREATER_THEN || compType == ComparisonType.LESS_THAN) &&
+                //only likely <50% of the time and if the difficulty is low
+                (randEasyBool() && randBool())) {
+            return Pair(Variable.of(name), Variable.of(name))
+        }
+
+        //used to prevent conditionals comparing two int literals
+        val defaultIntEval = {
+            if (record.hasVarType(VarType.INT_PRIMITIVE, ignore = name))
+                Variable.of<IntVar>(record.getRandVar(VarType.INT_PRIMITIVE, ignore = name))
+            else easyIntEval.invoke()
+        }
+
+        val eval = genIntEvaluation(record, defaultIntEval, ignore = name)
+
+        return if (randBool()) Pair(Variable.of<IntVar>(name), eval)
+        else Pair(eval, Variable.of(name))
     }
 
 }
