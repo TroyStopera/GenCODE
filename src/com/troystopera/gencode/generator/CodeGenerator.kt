@@ -6,12 +6,12 @@ import com.troystopera.gencode.ProblemType
 import com.troystopera.gencode.`var`.VarType
 import com.troystopera.gencode.code.BlankLine
 import com.troystopera.gencode.code.Component
-import com.troystopera.gencode.code.components.CodeBlock
 import com.troystopera.gencode.code.components.ForLoop
 import com.troystopera.gencode.code.components.Function
-import com.troystopera.gencode.generator.provider.DeclarationProvider
-import com.troystopera.gencode.generator.provider.ManipulationProvider
-import com.troystopera.gencode.generator.provider.ReturnIntProvider
+import com.troystopera.gencode.generator.components.ComponentProvider
+import com.troystopera.gencode.generator.statements.DeclarationProvider
+import com.troystopera.gencode.generator.statements.ManipulationProvider
+import com.troystopera.gencode.generator.statements.ReturnIntProvider
 import java.util.*
 
 class CodeGenerator(
@@ -45,39 +45,41 @@ class CodeGenerator(
     }
 
     fun generate(): Problem {
-        val provider = VariableProvider()
-        val rootRecord = GenRecord()
+        val context = GenContext()
+        val provider = VarNameProvider()
+        val rootRecord = GenScope()
         val builder = Problem.Builder()
         builder.setType(ProblemType.RETURN_VALUE)
         builder.setTopics(*topics)
 
         val main = Function("main", VarType.INT_PRIMITIVE)
-        declarationProvider.populate(main, Component.Type.GENERIC, provider, rootRecord)
+        declarationProvider.populate(main, Component.Type.GENERIC, provider, rootRecord, context)
         main.addExecutable(BlankLine.get())
-        main.addExecutable(gen(provider, rootRecord, 1))
+        main.addExecutable(gen(provider, rootRecord, 1, context))
         //add a default return to ensure a complete program
-        returnIntProvider.populate(main, Component.Type.GENERIC, provider, rootRecord)
+        returnIntProvider.populate(main, Component.Type.GENERIC, provider, rootRecord, context)
 
         builder.setMainFunction(main)
         return builder.build()
     }
 
-    private fun gen(variableProvider: VariableProvider, record: GenRecord, nestDepth: Int): Component {
+    private fun gen(variableProvider: VarNameProvider, scope: GenScope, nestDepth: Int, context: GenContext): Component {
         val baseComponentResult =
                 providers[randInt(0, providers.size - 1)].withDifficulty(difficulty / nestDepth)
-                        .generate(Component.Type.GENERIC, variableProvider, record)
+                        .generate(Component.Type.GENERIC, variableProvider, scope, context)
 
         for (block in baseComponentResult.newBlocks) {
             if (nestDepth < MAX_NESTING_DEPTH && randHardBool()) {
                 block.addExecutable(gen(
                         variableProvider,
-                        baseComponentResult.record.createChildRecord(),
-                        nestDepth + 1)
+                        baseComponentResult.scope.createChildRecord(),
+                        nestDepth + 1,
+                        context)
                 )
             } else if (baseComponentResult.component is ForLoop || randEasyBool())
-                manipulationProvider.populate(block, baseComponentResult.component.type, variableProvider, baseComponentResult.record)
+                manipulationProvider.populate(block, baseComponentResult.component.type, variableProvider, baseComponentResult.scope, context)
             else
-                returnIntProvider.populate(block, baseComponentResult.component.type, variableProvider, baseComponentResult.record)
+                returnIntProvider.populate(block, baseComponentResult.component.type, variableProvider, baseComponentResult.scope, context)
         }
 
         return baseComponentResult.component

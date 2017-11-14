@@ -3,9 +3,9 @@ package com.troystopera.gencode.generator
 import com.troystopera.gencode.`var`.VarType
 import java.util.*
 
-class GenRecord private constructor(
+class GenScope private constructor(
         val history: History,
-        private val parent: GenRecord?,
+        private val parent: GenScope?,
         private val depth: Int,
         private val random: Random
 ) {
@@ -58,7 +58,7 @@ class GenRecord private constructor(
         return set
     }
 
-    fun createChildRecord(): GenRecord = GenRecord(history, this, depth + 1, random)
+    fun createChildRecord(): GenScope = GenScope(history, this, depth + 1, random)
 
     class History {
         private val returnedVars = mutableSetOf<String>()

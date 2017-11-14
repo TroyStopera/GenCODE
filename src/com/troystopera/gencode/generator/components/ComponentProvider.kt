@@ -1,9 +1,8 @@
-package com.troystopera.gencode.generator
+package com.troystopera.gencode.generator.components
 
 import com.troystopera.gencode.ProblemTopic
 import com.troystopera.gencode.code.Component
-import com.troystopera.gencode.generator.provider.ConditionalProvider
-import com.troystopera.gencode.generator.provider.ForLoopProvider
+import com.troystopera.gencode.generator.*
 import java.util.*
 
 internal abstract class ComponentProvider(
@@ -14,7 +13,7 @@ internal abstract class ComponentProvider(
 
     abstract fun withDifficulty(difficulty: Double): ComponentProvider
 
-    abstract fun generate(parentType: Component.Type, varProvider: VariableProvider, record: GenRecord): ProviderResult
+    abstract fun generate(parentType: Component.Type, varProvider: VarNameProvider, scope: GenScope, context: GenContext): Result
 
     internal companion object {
 
@@ -22,7 +21,7 @@ internal abstract class ComponentProvider(
             return when (topic) {
                 ProblemTopic.FOR_LOOP -> ForLoopProvider(difficulty, seed, topics)
                 ProblemTopic.CONDITIONAL -> ConditionalProvider(difficulty, seed, topics)
-                ProblemTopic.ARRAY -> throw IllegalArgumentException("No provider for arrays")
+                ProblemTopic.ARRAY -> throw IllegalArgumentException("No statements for arrays")
             }
         }
 

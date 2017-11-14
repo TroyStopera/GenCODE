@@ -1,4 +1,4 @@
-package com.troystopera.gencode.generator.provider
+package com.troystopera.gencode.generator.statements
 
 import com.troystopera.gencode.GenerationException
 import com.troystopera.gencode.ProblemTopic
@@ -9,6 +9,8 @@ import com.troystopera.gencode.code.components.CodeBlock
 import com.troystopera.gencode.code.statements.Assignment
 import com.troystopera.gencode.code.statements.evaluations.ArrayAccess
 import com.troystopera.gencode.generator.*
+import com.troystopera.gencode.generator.GenScope
+import com.troystopera.gencode.generator.VarNameProvider
 import java.util.*
 
 internal class ManipulationProvider(
@@ -19,38 +21,38 @@ internal class ManipulationProvider(
 
     override fun withDifficulty(difficulty: Double): ManipulationProvider = ManipulationProvider(difficulty, random.nextLong(), topics)
 
-    override fun populate(parent: CodeBlock, parentCompType:Component.Type, varProvider: VariableProvider, record: GenRecord) {
-        if (!record.hasVarType(VarType.INT_PRIMITIVE))
-            throw GenerationException(IllegalStateException("No ints in record passed to ManipulationProvider"))
+    override fun populate(parent: CodeBlock, parentCompType:Component.Type, varProvider: VarNameProvider, scope: GenScope, context: GenContext) {
+        if (!scope.hasVarType(VarType.INT_PRIMITIVE))
+            throw GenerationException(IllegalStateException("No ints in scope passed to ManipulationProvider"))
 
         var count = 0
         while (count < MIN_OPERATIONS || (count < MAX_OPERATIONS && randHardBool())) {
-            val manipulateVar = record.getRandVar(VarType.INT_PRIMITIVE)!!
+            val manipulateVar = scope.getRandVar(VarType.INT_PRIMITIVE)!!
             //potentially manipulate an array with ~33% probability
-            if (randHardBool(.33) && topics.contains(ProblemTopic.ARRAY) && record.hasVarType(VarType.INT_ARRAY))
-                parent.addExecutable(genArrayManipulation(record))
+            if (randHardBool(.33) && topics.contains(ProblemTopic.ARRAY) && scope.hasVarType(VarType.INT_ARRAY))
+                parent.addExecutable(genArrayManipulation(scope))
             //standard int manipulation
             else
-                parent.addExecutable(Assignment.assign(manipulateVar, genIntEvaluation(record, manipulateVar)))
+                parent.addExecutable(Assignment.assign(manipulateVar, genIntEvaluation(scope, manipulateVar)))
             count++
         }
     }
 
-    private fun genArrayManipulation(record: GenRecord): Assignment {
-        val arr = record.getRandVar(VarType.INT_ARRAY)!!
-        val index = randEasyInt(0, record.getArrLength(arr) - 1)
+    private fun genArrayManipulation(scope: GenScope): Assignment {
+        val arr = scope.getRandVar(VarType.INT_ARRAY)!!
+        val index = randEasyInt(0, scope.getArrLength(arr) - 1)
         val rand = randInt(1, 3)
 
         return when {
-            rand == 1 && record.hasVarType(VarType.INT_PRIMITIVE) -> {
-                Assignment.assignArray(arr, index, record.getRandVar(VarType.INT_PRIMITIVE))
+            rand == 1 && scope.hasVarType(VarType.INT_PRIMITIVE) -> {
+                Assignment.assignArray(arr, index, scope.getRandVar(VarType.INT_PRIMITIVE))
             }
             rand == 2 -> {
                 Assignment.assignArray(arr, index, IntVar.of(randInt(0, 50)))
             }
             else -> {
-                val srcArr = record.getRandVar(VarType.INT_ARRAY)!!
-                val srcIndex = randEasyInt(0, record.getArrLength(srcArr) - 1)
+                val srcArr = scope.getRandVar(VarType.INT_ARRAY)!!
+                val srcIndex = randEasyInt(0, scope.getArrLength(srcArr) - 1)
                 Assignment.assignArray(arr, index, ArrayAccess.access(srcArr, srcIndex))
             }
         }

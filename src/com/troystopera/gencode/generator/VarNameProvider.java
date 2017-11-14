@@ -7,7 +7,7 @@ import java.util.Arrays;
     variables, however two instances will generate the same variables in the same order.
         The order of vars is as follows: a, b, c... aa, ab, ac... ba, bb, bc...
  */
-public class VariableProvider {
+public class VarNameProvider {
 
     private char[] prefix = new char[0];
     private char nextVarChar = 'a';
@@ -43,12 +43,12 @@ public class VariableProvider {
         }
     }
 
-    public boolean equals(VariableProvider provider) {
+    public boolean equals(VarNameProvider provider) {
         return nextVarChar == provider.nextVarChar && Arrays.equals(prefix, provider.prefix);
     }
 
-    public VariableProvider copy() {
-        VariableProvider provider = new VariableProvider();
+    public VarNameProvider copy() {
+        VarNameProvider provider = new VarNameProvider();
         char[] newPrefix = new char[prefix.length];
         System.arraycopy(prefix, 0, newPrefix, 0, prefix.length);
         provider.prefix = newPrefix;

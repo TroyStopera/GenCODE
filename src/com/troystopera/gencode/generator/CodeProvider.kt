@@ -3,6 +3,8 @@ package com.troystopera.gencode.generator
 import com.troystopera.gencode.ProblemTopic
 import com.troystopera.gencode.`var`.IntVar
 import com.troystopera.gencode.`var`.VarType
+import com.troystopera.gencode.code.Component
+import com.troystopera.gencode.code.components.CodeBlock
 import com.troystopera.gencode.code.statements.Evaluation
 import com.troystopera.gencode.code.statements.evaluations.MathOperation
 import com.troystopera.gencode.code.statements.evaluations.OperationType
@@ -19,11 +21,11 @@ internal abstract class CodeProvider(
 
     protected val easyIntEval = { Value.of(IntVar.of(randEasyInt(5, 50))) }
 
-    protected fun genMathOperation(record: GenRecord, manipulateVar: String,
+    protected fun genMathOperation(scope: GenScope, manipulateVar: String,
                                    opType: OperationType = RandomTypes.operationType(difficulty, random)): MathOperation {
         //TODO() better handle division and modulo divide by 0
-        return if (opType != OperationType.DIVISION && opType != OperationType.MODULUS && record.hasVarType(VarType.INT_PRIMITIVE) && randHardBool())
-            MathOperation(opType, manipulateVar, record.getRandVar(VarType.INT_PRIMITIVE))
+        return if (opType != OperationType.DIVISION && opType != OperationType.MODULUS && scope.hasVarType(VarType.INT_PRIMITIVE) && randHardBool())
+            MathOperation(opType, manipulateVar, scope.getRandVar(VarType.INT_PRIMITIVE))
         else {
             val intValue =
                     if (opType >= OperationType.MULTIPLICATION && opType < OperationType.MODULUS) randInt(1, 4)
@@ -32,16 +34,22 @@ internal abstract class CodeProvider(
         }
     }
 
-    protected fun genIntEvaluation(record: GenRecord, vararg ignore: String): Evaluation<IntVar> = genIntEvaluation(record, easyIntEval, *ignore)
+    protected fun genIntEvaluation(scope: GenScope, vararg ignore: String): Evaluation<IntVar> = genIntEvaluation(scope, easyIntEval, *ignore)
 
-    protected fun genIntEvaluation(record: GenRecord, default: () -> Evaluation<IntVar>, vararg ignore: String): Evaluation<IntVar> {
+    protected fun genIntEvaluation(scope: GenScope, default: () -> Evaluation<IntVar>, vararg ignore: String): Evaluation<IntVar> {
         //if random bool and an int in record
-        return if (randBool() && record.hasVarType(VarType.INT_PRIMITIVE, *ignore)) {
+        return if (randBool() && scope.hasVarType(VarType.INT_PRIMITIVE, *ignore)) {
             //hard chance of using a math operation
-            if (randHardBool()) genMathOperation(record, record.getRandVar(VarType.INT_PRIMITIVE, *ignore)!!)
+            if (randHardBool()) genMathOperation(scope, scope.getRandVar(VarType.INT_PRIMITIVE, *ignore)!!)
             //otherwise just a simple variable
-            else Variable.of(record.getRandVar(VarType.INT_PRIMITIVE, *ignore))
+            else Variable.of(scope.getRandVar(VarType.INT_PRIMITIVE, *ignore))
         } else default.invoke()
     }
+
+    class Result(
+            val component: Component,
+            val newBlocks: Array<CodeBlock>,
+            val scope: GenScope
+    )
 
 }

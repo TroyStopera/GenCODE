@@ -1,4 +1,4 @@
-package com.troystopera.gencode.generator.provider
+package com.troystopera.gencode.generator.components
 
 import com.troystopera.gencode.ProblemTopic
 import com.troystopera.gencode.`var`.IntVar
@@ -11,6 +11,8 @@ import com.troystopera.gencode.code.statements.evaluations.Comparison
 import com.troystopera.gencode.code.statements.evaluations.ComparisonType
 import com.troystopera.gencode.code.statements.evaluations.Variable
 import com.troystopera.gencode.generator.*
+import com.troystopera.gencode.generator.GenScope
+import com.troystopera.gencode.generator.VarNameProvider
 import java.util.*
 
 internal class ConditionalProvider(
@@ -21,7 +23,7 @@ internal class ConditionalProvider(
 
     override fun withDifficulty(difficulty: Double): ConditionalProvider = ConditionalProvider(difficulty, random.nextLong(), topics)
 
-    override fun generate(parentType: Component.Type, varProvider: VariableProvider, record: GenRecord): ProviderResult {
+    override fun generate(parentType: Component.Type, varProvider: VarNameProvider, scope: GenScope, context: GenContext): Result {
         val comparisons = mutableListOf<Comparison<IntVar>>()
         val blocks = mutableListOf<CodeBlock>()
         val conditional = Conditional()
@@ -30,7 +32,7 @@ internal class ConditionalProvider(
 
         while (comparisons.size < MIN_BRANCHES || (comparisons.size < MAX_BRANCHES && randHardBool())) {
             val compType = RandomTypes.comparisonType(random)
-            val eval = genEval(compType, record)
+            val eval = genEval(compType, scope)
             comparisons.add(Comparison(compType, eval.first, eval.second))
         }
 
@@ -52,12 +54,12 @@ internal class ConditionalProvider(
             blocks.add(block)
         }
 
-        return ProviderResult(conditional, blocks.toTypedArray(), record)
+        return Result(conditional, blocks.toTypedArray(), scope)
     }
 
-    private fun genEval(compType: ComparisonType, record: GenRecord): Pair<Evaluation<IntVar>, Evaluation<IntVar>> {
+    private fun genEval(compType: ComparisonType, scope: GenScope): Pair<Evaluation<IntVar>, Evaluation<IntVar>> {
         //the name of the int variable to compare
-        val name = record.getRandVar(VarType.INT_PRIMITIVE)!!
+        val name = scope.getRandVar(VarType.INT_PRIMITIVE)!!
 
         //for '>' and '<' allow for a chance to compare the variable to itself
         if ((compType == ComparisonType.GREATER_THEN || compType == ComparisonType.LESS_THAN) &&
@@ -68,12 +70,12 @@ internal class ConditionalProvider(
 
         //used to prevent conditionals comparing two int literals
         val defaultIntEval = {
-            if (record.hasVarType(VarType.INT_PRIMITIVE, ignore = name))
-                Variable.of<IntVar>(record.getRandVar(VarType.INT_PRIMITIVE, ignore = name))
+            if (scope.hasVarType(VarType.INT_PRIMITIVE, ignore = name))
+                Variable.of<IntVar>(scope.getRandVar(VarType.INT_PRIMITIVE, ignore = name))
             else easyIntEval.invoke()
         }
 
-        val eval = genIntEvaluation(record, defaultIntEval, ignore = name)
+        val eval = genIntEvaluation(scope, defaultIntEval, ignore = name)
 
         return if (randBool()) Pair(Variable.of<IntVar>(name), eval)
         else Pair(eval, Variable.of(name))
