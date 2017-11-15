@@ -34,10 +34,8 @@ internal class ForLoopProvider(
         return Declaration.declareWithAssign(
                 varName,
                 VarType.INT_PRIMITIVE,
-                genIntEvaluation(
-                        scope,
-                        { Value.of(IntVar.of(if (up) 0 else randEasyInt(10, 50))) }
-                )
+                //TODO utilize other variables in loop declaration
+                IntVar.of(if (up) 0 else randEasyInt(10, 20))
         )
     }
 
@@ -48,12 +46,16 @@ internal class ForLoopProvider(
             if (randBool()) ComparisonType.GREATER_THEN else ComparisonType.GREATER_THEN_EQUAL
         }
 
-        return if (randHardBool() && scope.hasVarType(VarType.INT_PRIMITIVE)) {
+        val value = if (up) randEasyInt(5, 20) else randEasyInt(-10, 10)
+        return Comparison(type, Variable.of<IntVar>(varName), Value.of(IntVar.of(value)))
+
+        //TODO utilize other variables in loop comparison
+        /*return if (randHardBool() && scope.hasVarType(VarType.INT_PRIMITIVE)) {
             Comparison(type, Variable.of<IntVar>(varName), Variable.of<IntVar>(scope.getRandVar(VarType.INT_PRIMITIVE)))
         } else {
             val value = if (up) randEasyInt(10, 100) else randEasyInt(-20, 10)
             Comparison(type, Variable.of<IntVar>(varName), Value.of(IntVar.of(value)))
-        }
+        }*/
     }
 
     private fun genAssignment(varName: String, up: Boolean): Assignment {
