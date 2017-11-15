@@ -1,6 +1,9 @@
 package com.troystopera.gencode.var;
 
 import com.troystopera.gencode.GenerationException;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Arrays;
 
 /**
  * Created by troy on 7/29/17.
@@ -76,4 +79,17 @@ public class ArrayVar<T extends Var> extends Var {
         return new ArrayVar<>(VarType.STRING_ARRAY, varArray);
     }
 
+    @Override
+    public boolean equals(@Nullable Object other) {
+        if (other instanceof ArrayVar) {
+            ArrayVar arr = (ArrayVar) other;
+            return Arrays.equals(array, arr.array);
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.hashCode(array);
+    }
 }

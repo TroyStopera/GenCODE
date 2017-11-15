@@ -10,15 +10,10 @@ import java.util.LinkedList;
  */
 public class Console {
 
-    private final Collection<String> console = new LinkedList<>();
     private Var returnVar;
 
     Console() {
         //only instantiated from this package
-    }
-
-    public void print(String s) {
-        console.add(s);
     }
 
     public void setReturn(Var var) {
@@ -26,7 +21,7 @@ public class Console {
     }
 
     ExecOutput toOutput() {
-        return new ExecOutput(console, returnVar);
+        return new ExecOutput(returnVar);
     }
 
 }

@@ -31,17 +31,20 @@ public class ExecutorControl {
         return console.toOutput();
     }
 
-    public List<ExecOutput> getFalseOutput(int count) {
+    public List<ExecOutput> getFalseOutput(int max) {
+        ExecOutput correct = getOutput();
         genFalse = true;
         branchPoints.clear();
 
-        List<ExecOutput> results = new ArrayList<>(count);
-        for (int i = 0; i < count; i++) {
+        Set<ExecOutput> results = new HashSet<>(max);
+        for (int i = 0; i < max; i++) {
             Console console = new Console();
             execute(problem.getMainFunction(), console, new Scope());
-            results.add(console.toOutput());
+            ExecOutput output = console.toOutput();
+            if (!output.equals(correct))
+                results.add(output);
         }
-        return results;
+        return new LinkedList<>(results);
     }
 
     @SuppressWarnings("unchecked")

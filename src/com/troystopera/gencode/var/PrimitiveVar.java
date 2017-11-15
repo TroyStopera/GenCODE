@@ -1,5 +1,7 @@
 package com.troystopera.gencode.var;
 
+import org.jetbrains.annotations.Nullable;
+
 /**
  * Created by troy on 7/29/17.
  */
@@ -23,6 +25,20 @@ public abstract class PrimitiveVar<T> extends Var {
     @Override
     public String toString() {
         return value.toString();
+    }
+
+    @Override
+    public boolean equals(@Nullable Object other) {
+        if (other instanceof PrimitiveVar) {
+            PrimitiveVar p = (PrimitiveVar) other;
+            return p.value.equals(value);
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return value.hashCode();
     }
 
 }

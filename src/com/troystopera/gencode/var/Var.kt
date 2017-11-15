@@ -4,6 +4,10 @@ import java.util.*
 
 abstract class Var(val type: VarType) {
 
+    override abstract fun equals(other: Any?): Boolean
+
+    override abstract fun hashCode(): Int
+
     companion object {
         fun random(type: VarType, random: Random): Var {
             return when (type) {
