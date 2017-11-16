@@ -14,18 +14,15 @@ import com.troystopera.gencode.generator.VarNameProvider
 import java.util.*
 
 internal class ForLoopProvider(
-        difficulty: Double,
-        seed: Long,
+        random: WeightedRandom,
         topics: Array<out ProblemTopic>
-) : ComponentProvider(ProviderType.FOR_LOOP, difficulty, Random(seed), topics) {
-
-    override fun withDifficulty(difficulty: Double): ForLoopProvider = ForLoopProvider(difficulty, random.nextLong(), topics)
+) : ComponentProvider(ProviderType.FOR_LOOP, random, topics) {
 
     override fun generate(parentType: Component.Type, varProvider: VarNameProvider, scope: GenScope, context: GenContext): Result {
         val varName = varProvider.nextVar()
         val newRecord = scope.createChildRecord()
         newRecord.addVar(varName, VarType.INT_PRIMITIVE, false)
-        val up = randBool()
+        val up = random.randBool()
         val loop = ForLoop(genDeclaration(varName, up, newRecord), genComparison(varName, up, newRecord), genAssignment(varName, up))
         return Result(loop, arrayOf(loop), newRecord)
     }
@@ -35,18 +32,18 @@ internal class ForLoopProvider(
                 varName,
                 VarType.INT_PRIMITIVE,
                 //TODO utilize other variables in loop declaration
-                IntVar.of(if (up) 0 else randEasyInt(10, 20))
+                IntVar.of(if (up) 0 else random.randEasyInt(10, 20))
         )
     }
 
     private fun genComparison(varName: String, up: Boolean, scope: GenScope): Comparison<IntVar> {
         val type = if (up) {
-            if (randBool()) ComparisonType.LESS_THAN else ComparisonType.LESS_THAN_EQUAL
+            if (random.randBool()) ComparisonType.LESS_THAN else ComparisonType.LESS_THAN_EQUAL
         } else {
-            if (randBool()) ComparisonType.GREATER_THEN else ComparisonType.GREATER_THEN_EQUAL
+            if (random.randBool()) ComparisonType.GREATER_THEN else ComparisonType.GREATER_THEN_EQUAL
         }
 
-        val value = if (up) randEasyInt(5, 20) else randEasyInt(-10, 10)
+        val value = if (up) random.randEasyInt(5, 20) else random.randEasyInt(-10, 10)
         return Comparison(type, Variable.of<IntVar>(varName), Value.of(IntVar.of(value)))
 
         //TODO utilize other variables in loop comparison
@@ -60,20 +57,20 @@ internal class ForLoopProvider(
 
     private fun genAssignment(varName: String, up: Boolean): Assignment {
         //use multiplication or division
-        return if (randHardBool()) {
+        return if (random.randHardBool()) {
             //TODO() figure out a workaround for multiplication for negative numbers leading to var getting smaller and smaller, currently using addition instead
-            if (up) Assignment.assign(varName, MathOperation(OperationType.ADDITION, varName, IntVar.of(randInt(2, 3))))
+            if (up) Assignment.assign(varName, MathOperation(OperationType.ADDITION, varName, IntVar.of(random.randInt(2, 3))))
             //TODO() figure out a workaround for division leading to var getting stuck at 1, currently using subtraction instead
-            else Assignment.assign(varName, MathOperation(OperationType.SUBTRACTION, varName, IntVar.of(randInt(2, 3))))
+            else Assignment.assign(varName, MathOperation(OperationType.SUBTRACTION, varName, IntVar.of(random.randInt(2, 3))))
         }
         //use addition or subtraction
         else {
-            if (randEasyBool()) {
+            if (random.randEasyBool()) {
                 if (up) Assignment.increment(varName)
                 else Assignment.decrement(varName)
             } else {
-                if (up) Assignment.assign(varName, MathOperation(OperationType.ADDITION, varName, IntVar.of(randInt(2, 5))))
-                else Assignment.assign(varName, MathOperation(OperationType.SUBTRACTION, varName, IntVar.of(randInt(2, 5))))
+                if (up) Assignment.assign(varName, MathOperation(OperationType.ADDITION, varName, IntVar.of(random.randInt(2, 5))))
+                else Assignment.assign(varName, MathOperation(OperationType.SUBTRACTION, varName, IntVar.of(random.randInt(2, 5))))
             }
         }
     }

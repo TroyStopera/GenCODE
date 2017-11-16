@@ -14,30 +14,27 @@ import com.troystopera.gencode.generator.VarNameProvider
 import java.util.*
 
 internal class DeclarationProvider(
-        difficulty: Double,
-        seed: Long,
+        random: WeightedRandom,
         topics: Array<out ProblemTopic>
-) : StatementProvider(ProviderType.DECLARATION, difficulty, Random(seed), topics) {
-
-    override fun withDifficulty(difficulty: Double): DeclarationProvider = DeclarationProvider(difficulty, random.nextLong(), topics)
+) : StatementProvider(ProviderType.DECLARATION, random, topics) {
 
     override fun populate(parent: CodeBlock, parentCompType: Component.Type, varProvider: VarNameProvider, scope: GenScope, context: GenContext) {
         var count = 0
 
         //possibly declare an array
-        if (topics.contains(ProblemTopic.ARRAY) && randBool()) {
+        if (topics.contains(ProblemTopic.ARRAY) && random.randBool()) {
             val name = varProvider.nextVar()
-            val length = randInt(MIN_ARRAY_LENGTH, MAX_ARRAY_LENGTH)
+            val length = random.randInt(MIN_ARRAY_LENGTH, MAX_ARRAY_LENGTH)
             parent.addExecutable(Declaration.declareWithAssign(
                     name,
                     VarType.INT_ARRAY,
-                    Value.of(ArrayVar.of(*Array<IntVar>(length, { IntVar.of(randInt()) })))
+                    Value.of(ArrayVar.of(*Array<IntVar>(length, { IntVar.of(random.randInt()) })))
             ))
             scope.addArrVar(name, VarType.INT_ARRAY, length)
             count++
         }
         //continue declaring until random end
-        while (count < MIN_DECLARATIONS || (count < MAX_DECLARATIONS && randHardBool())) {
+        while (count < MIN_DECLARATIONS || (count < MAX_DECLARATIONS && random.randHardBool())) {
             val name = varProvider.nextVar()
             parent.addExecutable(Declaration.declareWithAssign(
                     name,

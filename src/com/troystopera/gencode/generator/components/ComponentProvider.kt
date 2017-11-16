@@ -7,20 +7,17 @@ import java.util.*
 
 internal abstract class ComponentProvider(
         type: ProviderType,
-        difficulty: Double,
-        random: Random,
-        topics: Array<out ProblemTopic>) : CodeProvider(type, difficulty, random, topics) {
-
-    abstract fun withDifficulty(difficulty: Double): ComponentProvider
+        random: WeightedRandom,
+        topics: Array<out ProblemTopic>) : CodeProvider(type, random, topics) {
 
     abstract fun generate(parentType: Component.Type, varProvider: VarNameProvider, scope: GenScope, context: GenContext): Result
 
     internal companion object {
 
-        internal fun fromTopic(topic: ProblemTopic, difficulty: Double, topics: Array<out ProblemTopic>, seed: Long = Random().nextLong()): ComponentProvider {
+        internal fun fromTopic(topic: ProblemTopic, topics: Array<out ProblemTopic>, random: WeightedRandom): ComponentProvider {
             return when (topic) {
-                ProblemTopic.FOR_LOOP -> ForLoopProvider(difficulty, seed, topics)
-                ProblemTopic.CONDITIONAL -> ConditionalProvider(difficulty, seed, topics)
+                ProblemTopic.FOR_LOOP -> ForLoopProvider(random, topics)
+                ProblemTopic.CONDITIONAL -> ConditionalProvider(random, topics)
                 ProblemTopic.ARRAY -> throw IllegalArgumentException("No statements for arrays")
             }
         }

@@ -10,23 +10,19 @@ import com.troystopera.gencode.code.statements.evaluations.ArrayAccess
 import com.troystopera.gencode.generator.*
 import com.troystopera.gencode.generator.GenScope
 import com.troystopera.gencode.generator.VarNameProvider
-import java.util.*
 
 internal class ReturnIntProvider(
-        difficulty: Double,
-        seed: Long,
+        random: WeightedRandom,
         topics: Array<out ProblemTopic>
-) : StatementProvider(ProviderType.RETURN, difficulty, Random(seed), topics) {
-
-    override fun withDifficulty(difficulty: Double): ReturnIntProvider = ReturnIntProvider(difficulty, random.nextLong(), topics)
+) : StatementProvider(ProviderType.RETURN, random, topics) {
 
     override fun populate(parent: CodeBlock, parentCompType: Component.Type, varProvider: VarNameProvider, scope: GenScope, context: GenContext) {
         //TODO add history for returned array variables
         //50% chance of array access if possible
-        if (randBool() && topics.contains(ProblemTopic.ARRAY) && scope.hasVarType(VarType.INT_ARRAY)) {
+        if (random.randBool() && topics.contains(ProblemTopic.ARRAY) && scope.hasVarType(VarType.INT_ARRAY)) {
             val arrName = scope.getRandVar(VarType.INT_ARRAY)
             val length = scope.getArrLength(arrName!!)
-            parent.addExecutable(Return.returnStmt(ArrayAccess.access(arrName, randInt(0, length - 1))))
+            parent.addExecutable(Return.returnStmt(ArrayAccess.access(arrName, random.randInt(0, length - 1))))
         }
         //otherwise prefer to return a variable, but default to an easy int
         else {

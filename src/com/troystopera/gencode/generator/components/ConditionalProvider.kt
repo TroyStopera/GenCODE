@@ -13,15 +13,11 @@ import com.troystopera.gencode.code.statements.evaluations.Variable
 import com.troystopera.gencode.generator.*
 import com.troystopera.gencode.generator.GenScope
 import com.troystopera.gencode.generator.VarNameProvider
-import java.util.*
 
 internal class ConditionalProvider(
-        difficulty: Double,
-        seed: Long,
+        random: WeightedRandom,
         topics: Array<out ProblemTopic>
-) : ComponentProvider(ProviderType.CONDITIONAL, difficulty, Random(seed), topics) {
-
-    override fun withDifficulty(difficulty: Double): ConditionalProvider = ConditionalProvider(difficulty, random.nextLong(), topics)
+) : ComponentProvider(ProviderType.CONDITIONAL, random, topics) {
 
     override fun generate(parentType: Component.Type, varProvider: VarNameProvider, scope: GenScope, context: GenContext): Result {
         val comparisons = mutableListOf<Comparison<IntVar>>()
@@ -30,17 +26,17 @@ internal class ConditionalProvider(
 
         //TODO() Add conditional ints (such as matching ints)
 
-        while (comparisons.size < MIN_BRANCHES || (comparisons.size < MAX_BRANCHES && randHardBool())) {
+        while (comparisons.size < MIN_BRANCHES || (comparisons.size < MAX_BRANCHES && random.randHardBool())) {
             val compType = RandomTypes.comparisonType(random)
             val eval = genEval(compType, scope)
             comparisons.add(Comparison(compType, eval.first, eval.second))
         }
 
         //determine whether to add an else branch
-        if (randBool()) {
+        if (random.randBool()) {
             //if true removes a random branch to keep the total branch number the same
-            if (comparisons.size >= MAX_BRANCHES || randEasyBool())
-                comparisons.removeAt(randInt(0, comparisons.size - 1))
+            if (comparisons.size >= MAX_BRANCHES || random.randEasyBool())
+                comparisons.removeAt(random.randInt(0, comparisons.size - 1))
 
             val block = CodeBlock()
             conditional.setElse(block)
@@ -64,7 +60,7 @@ internal class ConditionalProvider(
         //for '>' and '<' allow for a chance to compare the variable to itself
         if ((compType == ComparisonType.GREATER_THEN || compType == ComparisonType.LESS_THAN) &&
                 //only likely <50% of the time and if the difficulty is low
-                (randEasyBool() && randBool())) {
+                (random.randEasyBool() && random.randBool())) {
             return Pair(Variable.of(name), Variable.of(name))
         }
 
@@ -77,7 +73,7 @@ internal class ConditionalProvider(
 
         val eval = genIntEvaluation(scope, defaultIntEval, ignore = name)
 
-        return if (randBool()) Pair(Variable.of<IntVar>(name), eval)
+        return if (random.randBool()) Pair(Variable.of<IntVar>(name), eval)
         else Pair(eval, Variable.of(name))
     }
 
