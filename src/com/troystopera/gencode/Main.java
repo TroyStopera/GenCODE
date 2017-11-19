@@ -14,26 +14,36 @@ import java.util.*;
 public class Main {
 
     public static void main(String... args) {
-        // if (args.length < 3)
-        //     throw new IllegalArgumentException("Please provide difficulty, number of questions, and at least one topic");
+        if (args.length < 3) {
+            System.out.println("Please provide difficulty, number of questions, and at least one topic");
+            System.exit(-1);
+        }
 
-        // double difficulty = Double.valueOf(args[0]);
-        //  int count = Integer.valueOf(args[1]);
-        // ProblemTopic[] topics = new ProblemTopic[args.length - 2];
+        double difficulty = Double.valueOf(args[0]);
+        int count = Integer.valueOf(args[1]);
+        ProblemTopic[] topics = new ProblemTopic[args.length - 2];
 
-        // for (int i = 2; i < args.length; i++)
-        //    topics[i - 2] = ProblemTopic.valueOf(args[i]);
+        for (int i = 2; i < args.length; i++)
+            topics[i - 2] = ProblemTopic.valueOf(args[i]);
 
-        CodeGenerator generator = new CodeGenerator(ProblemTopic.FOR_LOOP);
-        Problem problem = generator.generate(0.25);
+        System.out.println("Topics: " + Arrays.toString(topics));
+        System.out.println("Difficulty: " + difficulty);
+        System.out.println("-------\n");
 
-        System.out.println(Format.java().format(problem));
+        CodeGenerator generator = new CodeGenerator(topics);
+        int problemNum = 1;
+        for (Problem problem : generator.generate(difficulty, count)) {
+            System.out.println("Problem: " + problemNum);
+            System.out.println(Format.java().format(problem));
 
-        ExecutorControl control = new ExecutorControl(problem);
-        System.out.println(control.getOutput().getReturnVar().toString());
-        System.out.println("--------");
-        for (ExecOutput output : control.getFalseOutput(5)) {
-            System.out.println(output.getReturnVar().toString());
+            ExecutorControl control = new ExecutorControl(problem);
+            System.out.println("Answer: " + control.getOutput().getReturnVar().toString());
+            System.out.print("Distractors: ");
+            for (ExecOutput output : control.getFalseOutput(3)) {
+                System.out.print(output.getReturnVar().toString() + "  ");
+            }
+            System.out.println("\n\n");
+            problemNum++;
         }
     }
 
