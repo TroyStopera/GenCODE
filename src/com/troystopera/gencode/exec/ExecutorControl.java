@@ -3,6 +3,7 @@ package com.troystopera.gencode.exec;
 import com.troystopera.gencode.Problem;
 import com.troystopera.gencode.code.statements.evaluations.Comparison;
 import com.troystopera.gencode.var.BooleanVar;
+import com.troystopera.gencode.var.IntVar;
 import com.troystopera.gencode.var.Var;
 
 import java.util.*;
@@ -31,19 +32,29 @@ public class ExecutorControl {
         return console.toOutput();
     }
 
-    public List<ExecOutput> getFalseOutput(int max) {
+    public List<ExecOutput> getFalseOutput(int count) {
         ExecOutput correct = getOutput();
         genFalse = true;
         branchPoints.clear();
 
-        Set<ExecOutput> results = new HashSet<>(max);
-        for (int i = 0; i < max; i++) {
+        Set<ExecOutput> results = new HashSet<>(count);
+        for (int i = 0; i < count; i++) {
             Console console = new Console();
             execute(problem.getMainFunction(), console, new Scope());
             ExecOutput output = console.toOutput();
             if (!output.equals(correct))
                 results.add(output);
         }
+
+        int vary = 1;
+        int sign = 1;
+        while (results.size() < count) {
+            int i = ((IntVar) correct.getReturnVar()).getValue() + (vary * sign);
+            results.add(new ExecOutput(IntVar.of(i)));
+            vary++;
+            sign *= -1;
+        }
+
         return new LinkedList<>(results);
     }
 
