@@ -54,15 +54,30 @@ class GenScope private constructor(
     }
 
     fun getRandUnmanipVar(type: VarType, vararg ignore: String): String? {
-        val all = getAllVars(type, depth, true).minus(ignore).intersect(exclude)
-        return if (all.isEmpty()) null else all.elementAt(random.nextInt(all.size))
+        val all = vars.keys.filter { vars[it] == type }.toMutableSet()
+        var p = parent
+        while (p != null) {
+            val v = p.vars
+            all.addAll(v.keys.filter { v[it] == type })
+            p = p.parent
+        }
+
+        val allEx = exclude.toMutableSet()
+        p = parent
+        while (p != null) {
+            allEx.addAll(p.exclude)
+            p = p.parent
+        }
+
+        val avail = all.intersect(allEx).minus(ignore)
+        return if (avail.isEmpty()) null else avail.elementAt(random.nextInt(avail.size))
     }
 
     fun getAllVars(type: VarType, maxDepth: Int = depth, includeAll: Boolean = false): Set<String> = getAllVars(arrayOf(type), maxDepth, includeAll)
 
     fun getAllVars(types: Array<VarType>, maxDepth: Int = depth, includeAll: Boolean = false): Set<String> {
         val set = vars.keys.filter { types.contains(vars[it]) && (includeAll || !exclude.contains(it)) }.toMutableSet()
-        if (maxDepth > 0) set.addAll(parent?.getAllVars(types, maxDepth - 1) ?: emptySet())
+        if (maxDepth > 0) set.addAll(parent?.getAllVars(types, maxDepth - 1, includeAll) ?: emptySet())
         return set
     }
 
