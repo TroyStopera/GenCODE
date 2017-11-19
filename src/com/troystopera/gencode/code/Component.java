@@ -28,4 +28,5 @@ public abstract class Component extends Executable<Var> {
         GENERIC, CONDITIONAL, FOR_LOOP, WHILE_LOOP, FUNCTION
 
     }
+
 }

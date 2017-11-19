@@ -6,8 +6,10 @@ import com.troystopera.gencode.`var`.IntVar
 import com.troystopera.gencode.`var`.VarType
 import com.troystopera.gencode.code.Component
 import com.troystopera.gencode.code.components.CodeBlock
+import com.troystopera.gencode.code.components.ForLoop
 import com.troystopera.gencode.code.statements.Assignment
 import com.troystopera.gencode.code.statements.evaluations.ArrayAccess
+import com.troystopera.gencode.code.statements.evaluations.MathOperation
 import com.troystopera.gencode.generator.*
 import com.troystopera.gencode.generator.GenScope
 import com.troystopera.gencode.generator.VarNameProvider
@@ -23,6 +25,16 @@ internal class ManipulationProvider(
             throw GenerationException(IllegalStateException("No ints in scope passed to ManipulationProvider"))
 
         var count = 0
+
+        //start by manipulating the return var if present
+        if (context.mainIntVar != null) {
+            if (scope.isIn(ForLoop::class))
+                parent.addExecutable(forLoopManip(context, scope))
+            else
+                parent.addExecutable(Assignment.assign(context.mainIntVar, genIntEvaluation(scope, context.mainIntVar!!)))
+            count++
+        }
+
         while (count < MIN_OPERATIONS || (count < MAX_OPERATIONS && random.randHardBool())) {
             val manipulateVar = scope.getRandVar(VarType.INT_PRIMITIVE)!!
             //potentially manipulate an array with 33% probability
@@ -53,6 +65,12 @@ internal class ManipulationProvider(
                 Assignment.assignArray(arr, index, ArrayAccess.access(srcArr, srcIndex))
             }
         }
+    }
+
+    private fun forLoopManip(context: GenContext, scope: GenScope): Assignment {
+        val opType = RandomTypes.operationType(random.difficulty, random)
+        val op = MathOperation(opType, context.mainIntVar, scope.getRandUnmanipVar(VarType.INT_PRIMITIVE))
+        return Assignment.assign(context.mainIntVar, op)
     }
 
 }

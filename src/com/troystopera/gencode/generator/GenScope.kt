@@ -1,10 +1,13 @@
 package com.troystopera.gencode.generator
 
 import com.troystopera.gencode.`var`.VarType
+import com.troystopera.gencode.code.Component
 import java.util.*
+import kotlin.reflect.KClass
 
 class GenScope private constructor(
         val history: History,
+        private val compClass: KClass<out Component>?,
         private val parent: GenScope?,
         private val depth: Int,
         private val random: Random
@@ -14,9 +17,9 @@ class GenScope private constructor(
     private val arrayLengths = hashMapOf<String, Int>()
     private val exclude = hashSetOf<String>()
 
-    constructor() : this(History(), null, 0, Random())
+    constructor() : this(History(), null, null, 0, Random())
 
-    constructor(seed: Long) : this(History(), null, 0, Random(seed))
+    constructor(seed: Long) : this(History(), null, null, 0, Random(seed))
 
     fun addArrVar(name: String, type: VarType, length: Int) {
         assert(!type.isPrimitive)
@@ -50,15 +53,23 @@ class GenScope private constructor(
         return if (all.isEmpty()) null else all.elementAt(random.nextInt(all.size))
     }
 
-    fun getAllVars(type: VarType, maxDepth: Int = depth): Set<String> = getAllVars(arrayOf(type), maxDepth)
+    fun getRandUnmanipVar(type: VarType, vararg ignore: String): String? {
+        val all = getAllVars(type, depth, true).minus(ignore).intersect(exclude)
+        return if (all.isEmpty()) null else all.elementAt(random.nextInt(all.size))
+    }
 
-    fun getAllVars(types: Array<VarType>, maxDepth: Int = depth): Set<String> {
-        val set = vars.keys.filter { types.contains(vars[it]) && !exclude.contains(it) }.toMutableSet()
+    fun getAllVars(type: VarType, maxDepth: Int = depth, includeAll: Boolean = false): Set<String> = getAllVars(arrayOf(type), maxDepth, includeAll)
+
+    fun getAllVars(types: Array<VarType>, maxDepth: Int = depth, includeAll: Boolean = false): Set<String> {
+        val set = vars.keys.filter { types.contains(vars[it]) && (includeAll || !exclude.contains(it)) }.toMutableSet()
         if (maxDepth > 0) set.addAll(parent?.getAllVars(types, maxDepth - 1) ?: emptySet())
         return set
     }
 
-    fun createChildRecord(): GenScope = GenScope(history, this, depth + 1, random)
+    fun <T : Component> isIn(kClass: KClass<T>): Boolean =
+            compClass?.equals(kClass) ?: false || parent?.isIn(kClass) ?: false
+
+    fun <T : Component> createChildRecord(kClass: KClass<T>): GenScope = GenScope(history, kClass, this, depth + 1, random)
 
     class History {
         private val returnedVars = mutableSetOf<String>()

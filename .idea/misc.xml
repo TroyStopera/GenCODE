@@ -3,16 +3,4 @@
   <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" default="false" project-jdk-name="1.8" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/out" />
   </component>
-  <component name="SbtLocalSettings">
-    <option name="modificationStamps">
-      <map>
-        <entry key="$USER_HOME$/The George Washington University/Research/capital-site" value="1465331249247" />
-        <entry key="$USER_HOME$/The George Washington University/Research/coding_boot_camp" value="1458501955158" />
-        <entry key="$USER_HOME$/The George Washington University/Research/re-mind" value="1455208629778" />
-      </map>
-    </option>
-    <option name="externalProjectsViewState">
-      <projects_view />
-    </option>
-  </component>
 </project>

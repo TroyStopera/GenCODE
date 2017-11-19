@@ -8,6 +8,7 @@ import com.troystopera.gencode.code.BlankLine
 import com.troystopera.gencode.code.Component
 import com.troystopera.gencode.code.components.ForLoop
 import com.troystopera.gencode.code.components.Function
+import com.troystopera.gencode.code.statements.Return
 import com.troystopera.gencode.generator.components.ComponentProvider
 import com.troystopera.gencode.generator.statements.DeclarationProvider
 import com.troystopera.gencode.generator.statements.ManipulationProvider
@@ -69,10 +70,11 @@ class CodeGenerator private constructor(
 
         val main = Function("main", VarType.INT_PRIMITIVE)
         declarationProvider.populate(main, Component.Type.GENERIC, provider, rootRecord, context)
+        context.mainIntVar = rootRecord.getRandVar(VarType.INT_PRIMITIVE)
         main.addExecutable(BlankLine.get())
         main.addExecutable(gen(provider, rootRecord, 1, context))
         //add a default return to ensure a complete program
-        returnIntProvider.populate(main, Component.Type.GENERIC, provider, rootRecord, context)
+        main.addExecutable(Return.returnStmt(context.mainIntVar ?: rootRecord.getRandVar(VarType.INT_PRIMITIVE)))
 
         builder.setMainFunction(main)
         return builder.build()
@@ -86,14 +88,14 @@ class CodeGenerator private constructor(
             if (nestDepth < MAX_NESTING_DEPTH && random.randHardBool()) {
                 block.addExecutable(gen(
                         variableProvider,
-                        baseComponentResult.scope.createChildRecord(),
+                        baseComponentResult.scope.createChildRecord(baseComponentResult.component::class),
                         nestDepth + 1,
                         context)
                 )
-            } else if (baseComponentResult.component is ForLoop || random.randEasyBool())
+            } else //if (baseComponentResult.component is ForLoop || random.randEasyBool())
                 manipulationProvider.populate(block, baseComponentResult.component.type, variableProvider, baseComponentResult.scope, context)
-            else
-                returnIntProvider.populate(block, baseComponentResult.component.type, variableProvider, baseComponentResult.scope, context)
+           // else
+               // returnIntProvider.populate(block, baseComponentResult.component.type, variableProvider, baseComponentResult.scope, context)
         }
 
         return baseComponentResult.component

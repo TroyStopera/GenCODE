@@ -20,7 +20,7 @@ internal class ForLoopProvider(
 
     override fun generate(parentType: Component.Type, varProvider: VarNameProvider, scope: GenScope, context: GenContext): Result {
         val varName = varProvider.nextVar()
-        val newRecord = scope.createChildRecord()
+        val newRecord = scope.createChildRecord(ForLoop::class)
         newRecord.addVar(varName, VarType.INT_PRIMITIVE, false)
         val up = random.randBool()
         val loop = ForLoop(genDeclaration(varName, up, newRecord), genComparison(varName, up, newRecord), genAssignment(varName, up))
