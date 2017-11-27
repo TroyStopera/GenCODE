@@ -6,7 +6,6 @@ import com.troystopera.gencode.ProblemType
 import com.troystopera.gencode.`var`.VarType
 import com.troystopera.gencode.code.BlankLine
 import com.troystopera.gencode.code.Component
-import com.troystopera.gencode.code.components.ForLoop
 import com.troystopera.gencode.code.components.Function
 import com.troystopera.gencode.code.statements.Return
 import com.troystopera.gencode.generator.components.ComponentProvider
@@ -62,7 +61,7 @@ class CodeGenerator private constructor(
         random.difficulty = difficulty
         val context = GenContext()
         val provider = VarNameProvider()
-        val rootRecord = GenScope()
+        val rootRecord = GenScope(random)
         val builder = Problem.Builder()
         builder.setType(ProblemType.RETURN_VALUE)
         builder.setTopics(*topics)

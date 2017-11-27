@@ -32,7 +32,7 @@ internal class ForLoopProvider(
                 varName,
                 VarType.INT_PRIMITIVE,
                 //TODO utilize other variables in loop declaration
-                IntVar.of(if (up) 0 else random.randEasyInt(10, 20))
+                IntVar.of(if (up) 0 else random.randEasyInt(5, 10))
         )
     }
 
@@ -43,7 +43,7 @@ internal class ForLoopProvider(
             if (random.randBool()) ComparisonType.GREATER_THEN else ComparisonType.GREATER_THEN_EQUAL
         }
 
-        val value = if (up) random.randEasyInt(5, 20) else random.randEasyInt(-10, 10)
+        val value = if (up) random.randInt(5, 10) else random.randInt(0, 5)
         return Comparison(type, Variable.of<IntVar>(varName), Value.of(IntVar.of(value)))
 
         //TODO utilize other variables in loop comparison
@@ -59,9 +59,9 @@ internal class ForLoopProvider(
         //use multiplication or division
         return if (random.randHardBool()) {
             //TODO() figure out a workaround for multiplication for negative numbers leading to var getting smaller and smaller, currently using addition instead
-            if (up) Assignment.assign(varName, MathOperation(OperationType.ADDITION, varName, IntVar.of(random.randInt(2, 3))))
+            if (up) Assignment.assign(varName, MathOperation(OperationType.ADDITION, varName, IntVar.of(random.randInt(2, 2))))
             //TODO() figure out a workaround for division leading to var getting stuck at 1, currently using subtraction instead
-            else Assignment.assign(varName, MathOperation(OperationType.SUBTRACTION, varName, IntVar.of(random.randInt(2, 3))))
+            else Assignment.assign(varName, MathOperation(OperationType.SUBTRACTION, varName, IntVar.of(random.randInt(2, 2))))
         }
         //use addition or subtraction
         else {
@@ -69,8 +69,8 @@ internal class ForLoopProvider(
                 if (up) Assignment.increment(varName)
                 else Assignment.decrement(varName)
             } else {
-                if (up) Assignment.assign(varName, MathOperation(OperationType.ADDITION, varName, IntVar.of(random.randInt(2, 5))))
-                else Assignment.assign(varName, MathOperation(OperationType.SUBTRACTION, varName, IntVar.of(random.randInt(2, 5))))
+                if (up) Assignment.assign(varName, MathOperation(OperationType.ADDITION, varName, IntVar.of(random.randInt(2, 3))))
+                else Assignment.assign(varName, MathOperation(OperationType.SUBTRACTION, varName, IntVar.of(random.randInt(2, 3))))
             }
         }
     }

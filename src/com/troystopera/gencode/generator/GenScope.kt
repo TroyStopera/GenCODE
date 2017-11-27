@@ -17,9 +17,7 @@ class GenScope private constructor(
     private val arrayLengths = hashMapOf<String, Int>()
     private val exclude = hashSetOf<String>()
 
-    constructor() : this(History(), null, null, 0, Random())
-
-    constructor(seed: Long) : this(History(), null, null, 0, Random(seed))
+    constructor(random: Random) : this(History(), null, null, 0, random)
 
     fun addArrVar(name: String, type: VarType, length: Int) {
         assert(!type.isPrimitive)
