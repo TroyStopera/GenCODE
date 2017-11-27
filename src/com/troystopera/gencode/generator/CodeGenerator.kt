@@ -67,7 +67,7 @@ class CodeGenerator private constructor(
         builder.setTopics(*topics)
         builder.setDifficulty(difficulty)
 
-        val main = Function("main", VarType.INT_PRIMITIVE)
+        val main = Function("example", VarType.INT_PRIMITIVE)
         declarationProvider.populate(main, Component.Type.GENERIC, provider, rootRecord, context)
         context.mainIntVar = rootRecord.getRandVar(VarType.INT_PRIMITIVE)
         main.addExecutable(BlankLine.get())
