@@ -9,10 +9,7 @@ import com.troystopera.gencode.code.components.CodeBlock
 import com.troystopera.gencode.code.components.ForLoop
 import com.troystopera.gencode.code.statements.Assignment
 import com.troystopera.gencode.code.statements.Evaluation
-import com.troystopera.gencode.code.statements.evaluations.ArrayAccess
-import com.troystopera.gencode.code.statements.evaluations.MathOperation
-import com.troystopera.gencode.code.statements.evaluations.Value
-import com.troystopera.gencode.code.statements.evaluations.Variable
+import com.troystopera.gencode.code.statements.evaluations.*
 import com.troystopera.gencode.generator.*
 import com.troystopera.gencode.generator.GenScope
 import com.troystopera.gencode.generator.VarNameProvider
@@ -85,7 +82,10 @@ internal class ManipulationProvider(
     }
 
     private fun forLoopManip(context: GenContext, scope: GenScope): Assignment {
-        val opType = RandomTypes.operationType(random.difficulty, random)
+        var opType = RandomTypes.operationType(random.difficulty, random)
+        //TODO find a better fix for divide by 0
+        if (opType == OperationType.DIVISION || opType == OperationType.MODULUS)
+            opType = OperationType.MULTIPLICATION
         val op = MathOperation(opType, context.mainIntVar, scope.getRandUnmanipVar(VarType.INT_PRIMITIVE))
         return Assignment.assign(context.mainIntVar, op)
     }
