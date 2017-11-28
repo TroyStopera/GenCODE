@@ -10,14 +10,36 @@ class GenScope private constructor(
         private val compClass: KClass<out Component>?,
         private val parent: GenScope?,
         private val depth: Int,
-        private val random: Random
+        private val random: Random,
+        inheritedPatterns: Collection<Pattern>?
 ) {
 
     private val vars = hashMapOf<String, VarType>()
     private val arrayLengths = hashMapOf<String, Int>()
     private val exclude = hashSetOf<String>()
+    private val patterns = mutableListOf<Pattern>()
 
-    constructor(random: Random) : this(History(), null, null, 0, random)
+    init {
+        inheritedPatterns?.forEach { patterns.add(it) }
+    }
+
+    constructor(random: Random) : this(History(), null, null, 0, random, null)
+
+    fun addPattern(pattern: Pattern) {
+        patterns.add(pattern)
+    }
+
+    fun hasPattern(type: Pattern.Type): Boolean {
+        patterns.forEach { if (it.type == type) return true }
+        return false
+    }
+
+    fun getPattern(type: Pattern.Type): Pattern? {
+        val typePatterns = patterns.filter { it.type == type }
+        return if (typePatterns.isNotEmpty()) {
+            typePatterns[random.nextInt(typePatterns.size)]
+        } else null
+    }
 
     fun addArrVar(name: String, type: VarType, length: Int) {
         assert(!type.isPrimitive)
@@ -82,7 +104,7 @@ class GenScope private constructor(
     fun <T : Component> isIn(kClass: KClass<T>): Boolean =
             compClass?.equals(kClass) ?: false || parent?.isIn(kClass) ?: false
 
-    fun <T : Component> createChildRecord(kClass: KClass<T>): GenScope = GenScope(history, kClass, this, depth + 1, random)
+    fun <T : Component> createChildRecord(kClass: KClass<T>): GenScope = GenScope(history, kClass, this, depth + 1, random, patterns)
 
     class History {
         private val returnedVars = mutableSetOf<String>()

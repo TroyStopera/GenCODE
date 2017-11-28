@@ -19,30 +19,39 @@ import java.util.Optional;
 public class MathOperation extends Evaluation<IntVar> {
 
     private final OperationType type;
-    private final String varName;
-    private final Evaluation evaluation;
+    private final Evaluation evaluationL;
+    private final Evaluation evaluationR;
+
+    public MathOperation(OperationType type, Evaluation left, Evaluation right) {
+        super(Type.OPERATION);
+        this.type = type;
+        evaluationL = left;
+        evaluationR = right;
+    }
 
     public MathOperation(OperationType type, String varName, String varName2) {
         super(Type.OPERATION);
         this.type = type;
-        this.varName = varName;
-        this.evaluation = Variable.of(varName2);
+        evaluationL = Variable.of(varName);
+        evaluationR = Variable.of(varName2);
     }
 
     public MathOperation(OperationType type, String varName, IntVar intVar) {
         super(Type.OPERATION);
         this.type = type;
-        this.varName = varName;
-        this.evaluation = Value.of(intVar);
+        evaluationL = Variable.of(varName);
+        evaluationR = Value.of(intVar);
     }
 
     @Override
     protected final Optional<IntVar> execute(ExecutorControl control, Console console, Scope scope) {
-        Optional<Var> optVar = control.execute(evaluation, console, scope);
-        if (!optVar.isPresent()) throw new GenerationException(new NullPointerException("Null value in operation"));
+        Optional<Var> optLeft = control.execute(evaluationL, console, scope);
+        Optional<Var> optRight = control.execute(evaluationR, console, scope);
+        if (!optLeft.isPresent() || !optRight.isPresent())
+            throw new GenerationException(new NullPointerException("Null value in operation"));
 
-        Var var1 = scope.getVar(varName);
-        Var var2 = optVar.get();
+        Var var1 = optLeft.get();
+        Var var2 = optRight.get();
 
         if (var1.getType() != VarType.INT_PRIMITIVE || var2.getType() != VarType.INT_PRIMITIVE)
             throw new GenerationException(new IllegalArgumentException("Non-int var used in operation"));
@@ -77,12 +86,12 @@ public class MathOperation extends Evaluation<IntVar> {
         return type;
     }
 
-    public String getVarName() {
-        return varName;
+    public Evaluation getLeftEval() {
+        return evaluationL;
     }
 
-    public Evaluation getEvaluation() {
-        return evaluation;
+    public Evaluation getRightEval() {
+        return evaluationR;
     }
 
 }

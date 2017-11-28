@@ -67,12 +67,13 @@ public class ExecutorControl {
 
     @SuppressWarnings("UnnecessaryLocalVariable")
     public Optional<BooleanVar> evaluate(Comparison comparison, Console console, Scope scope) {
-        //mask it as Executable so we have aces to execute()
+        //mask it as Executable so we have access to execute()
         Executable<BooleanVar> executable = comparison;
         Optional<BooleanVar> bool = executable.execute(this, console, scope);
         //if going for false result, then change results
         if (genFalse) {
-            if (bool.isPresent()) {
+            //only turn true to false to avoid code throwing exceptions
+            if (bool.isPresent() && bool.get().getValue()) {
                 boolean result = bool.get().getValue();
                 //determine what percentage to false branch
                 int prob;

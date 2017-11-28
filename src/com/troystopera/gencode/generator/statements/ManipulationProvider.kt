@@ -8,8 +8,11 @@ import com.troystopera.gencode.code.Component
 import com.troystopera.gencode.code.components.CodeBlock
 import com.troystopera.gencode.code.components.ForLoop
 import com.troystopera.gencode.code.statements.Assignment
+import com.troystopera.gencode.code.statements.Evaluation
 import com.troystopera.gencode.code.statements.evaluations.ArrayAccess
 import com.troystopera.gencode.code.statements.evaluations.MathOperation
+import com.troystopera.gencode.code.statements.evaluations.Value
+import com.troystopera.gencode.code.statements.evaluations.Variable
 import com.troystopera.gencode.generator.*
 import com.troystopera.gencode.generator.GenScope
 import com.troystopera.gencode.generator.VarNameProvider
@@ -26,7 +29,20 @@ internal class ManipulationProvider(
 
         var count = 0
 
-        //start by manipulating the return var if present
+        //start by checking for an array generation pattern
+        if (scope.hasPattern(Pattern.Type.ARRAY_WALK)) {
+            val arrayWalk = scope.getPattern(Pattern.Type.ARRAY_WALK)!! as Pattern.ArrayWalk
+            parent.addExecutable(
+                    Assignment.assignArray(
+                            arrayWalk.arrayName,
+                            Variable.of<IntVar>(arrayWalk.index),
+                            Variable.of<IntVar>(scope.getRandUnmanipVar(VarType.INT_PRIMITIVE)!!)
+                    )
+            )
+            count++
+        }
+
+        //manipulate the return var if present
         if (context.mainIntVar != null) {
             if (scope.isIn(ForLoop::class))
                 parent.addExecutable(forLoopManip(context, scope))
@@ -39,7 +55,7 @@ internal class ManipulationProvider(
             val manipulateVar = scope.getRandVar(VarType.INT_PRIMITIVE)!!
             //potentially manipulate an array with 33% probability
             if (random.randBool(.33) && topics.contains(ProblemTopic.ARRAY) && scope.hasVarType(VarType.INT_ARRAY))
-                parent.addExecutable(genArrayManipulation(scope))
+                parent.addExecutable(genArrayManipulation(null, scope))
             //standard int manipulation
             else
                 parent.addExecutable(Assignment.assign(manipulateVar, genIntEvaluation(scope, manipulateVar)))
@@ -47,9 +63,10 @@ internal class ManipulationProvider(
         }
     }
 
-    private fun genArrayManipulation(scope: GenScope): Assignment {
+    //TODO consolidate array manipulations
+    private fun genArrayManipulation(i: Evaluation<IntVar>?, scope: GenScope): Assignment {
         val arr = scope.getRandVar(VarType.INT_ARRAY)!!
-        val index = random.randEasyInt(0, scope.getArrLength(arr) - 1)
+        val index = i ?: Value.of(IntVar.of(random.randEasyInt(0, scope.getArrLength(arr) - 1)))
         val rand = random.randInt(1, 3)
 
         return when {

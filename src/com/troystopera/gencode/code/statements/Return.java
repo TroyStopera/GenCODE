@@ -56,6 +56,12 @@ public class Return extends Statement<Var> {
                 if (var.isPresent()) console.setReturn(var.get());
                 else console.setReturn(null);
                 return var;
+            case ARRAY_ACCESS:
+                ArrayAccess arrayAccess = (ArrayAccess) evaluation;
+                var = control.execute(arrayAccess, console, scope);
+                if (var.isPresent()) console.setReturn(var.get());
+                else console.setReturn(null);
+                return var;
             default:
                 throw new GenerationException(new IllegalArgumentException("Invalid return type: " + evaluation.getEvalType().name()));
         }

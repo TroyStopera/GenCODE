@@ -22,7 +22,7 @@ public class JavaFormat extends Format {
     String formatStmtAssign(Assignment assignment) {
         String var;
         if (assignment.isArrayIndexAssign()) {
-            var = assignment.getVar() + "[" + assignment.getArrayIndex() + "]";
+            var = assignment.getVar() + "[" + formatEval(assignment.getArrayIndex()) + "]";
         } else var = assignment.getVar();
 
         return var + " = " + formatEval(assignment.getEval());
@@ -204,11 +204,11 @@ public class JavaFormat extends Format {
 
     @Override
     String formatEvalOperation(MathOperation mathOperation) {
-        return mathOperation.getVarName() +
+        return formatEval(mathOperation.getLeftEval()) +
                 " " +
                 opTypeString(mathOperation.getOpType()) +
                 " " +
-                formatEval(mathOperation.getEvaluation());
+                formatEval(mathOperation.getRightEval());
     }
 
     @SuppressWarnings("unchecked")

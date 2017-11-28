@@ -20,31 +20,45 @@ internal class DeclarationProvider(
 
     override fun populate(parent: CodeBlock, parentCompType: Component.Type, varProvider: VarNameProvider, scope: GenScope, context: GenContext) {
         var count = 0
+        val arrays = topics.contains(ProblemTopic.ARRAY)
 
-        //possibly declare an array
-        if (topics.contains(ProblemTopic.ARRAY) && random.randBool()) {
-            val name = varProvider.nextVar()
-            val length = random.randInt(MIN_ARRAY_LENGTH, MAX_ARRAY_LENGTH)
-            parent.addExecutable(Declaration.declareWithAssign(
-                    name,
-                    VarType.INT_ARRAY,
-                    Value.of(ArrayVar.of(*Array<IntVar>(length, { IntVar.of(random.randInt()) })))
-            ))
-            scope.addArrVar(name, VarType.INT_ARRAY, length)
-            count++
+        //declare an array if needed
+        if (arrays) {
+            parent.addExecutable(declareArray(scope, varProvider))
+            parent.addExecutable(declareInt(scope, varProvider))
+            count += 2
         }
+
         //continue declaring until random end
         while (count < MIN_DECLARATIONS || (count < MAX_DECLARATIONS && random.randHardBool())) {
-            val name = varProvider.nextVar()
-            parent.addExecutable(Declaration.declareWithAssign(
-                    name,
-                    VarType.INT_PRIMITIVE,
-                    //TODO allow for declarations to be something other than an int literal
-                    Value.of(IntVar.random(random, 100))
-            ))
-            scope.addVar(name, VarType.INT_PRIMITIVE)
+            if (arrays && random.randHardBool())
+                parent.addExecutable(declareArray(scope, varProvider))
+            else
+                parent.addExecutable(declareInt(scope, varProvider))
             count++
         }
+    }
+
+    private fun declareInt(scope: GenScope, varProvider: VarNameProvider): Declaration {
+        val name = varProvider.nextVar()
+        scope.addVar(name, VarType.INT_PRIMITIVE)
+        return Declaration.declareWithAssign(
+                name,
+                VarType.INT_PRIMITIVE,
+                //TODO allow for declarations to be something other than an int literal
+                Value.of(IntVar.random(random, 100))
+        )
+    }
+
+    private fun declareArray(scope: GenScope, varProvider: VarNameProvider): Declaration {
+        val name = varProvider.nextVar()
+        val length = random.randInt(MIN_ARRAY_LENGTH, MAX_ARRAY_LENGTH)
+        scope.addArrVar(name, VarType.INT_ARRAY, length)
+        return Declaration.declareWithAssign(
+                name,
+                VarType.INT_ARRAY,
+                Value.of(ArrayVar.of(*Array<IntVar>(length, { IntVar.of(random.randInt()) })))
+        )
     }
 
 }
