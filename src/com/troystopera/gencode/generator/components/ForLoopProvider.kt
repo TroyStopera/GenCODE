@@ -56,7 +56,7 @@ internal class ForLoopProvider(
                 else MathOperation(OperationType.SUBTRACTION, ArrayLength.of(pattern.arrayName), Value.of(IntVar.of(1)))
             }
         //default declaration
-            else -> Value.of(IntVar.of(if (up) 0 else random.randEasyInt(5, 10)))
+            else -> Value.of(IntVar.of(if (up) random.randInt(0, 2) else random.randInt(1, 5)))
         }
         return Declaration.declareWithAssign(varName, VarType.INT_PRIMITIVE, value)
     }
@@ -84,17 +84,9 @@ internal class ForLoopProvider(
                 else Value.of(IntVar.of(0))
             }
         //default value
-            else -> Value.of(IntVar.of(if (up) random.randInt(5, 10) else random.randInt(0, 5)))
+            else -> Value.of(IntVar.of(if (up) random.randInt(1, 5) else random.randInt(0, 3)))
         }
         return Comparison(type, Variable.of<IntVar>(varName), value)
-
-        //TODO utilize other variables in loop comparison
-        /*return if (randHardBool() && scope.hasVarType(VarType.INT_PRIMITIVE)) {
-            Comparison(type, Variable.of<IntVar>(varName), Variable.of<IntVar>(scope.getRandVar(VarType.INT_PRIMITIVE)))
-        } else {
-            val value = if (up) randEasyInt(10, 100) else randEasyInt(-20, 10)
-            Comparison(type, Variable.of<IntVar>(varName), Value.of(IntVar.of(value)))
-        }*/
     }
 
     private fun genAssignment(varName: String, up: Boolean, pattern: Pattern?): Assignment {
@@ -102,19 +94,6 @@ internal class ForLoopProvider(
             pattern is Pattern.ArrayWalk -> {
                 if (up) Assignment.increment(varName)
                 else Assignment.decrement(varName)
-            }
-        //multiply or divide
-            random.randHardBool() -> {
-                //TODO() figure out a workaround for multiplication for negative numbers leading to var getting smaller and smaller, currently using addition instead
-                if (up) Assignment.assign(
-                        varName,
-                        MathOperation(OperationType.ADDITION, varName, IntVar.of(random.randInt(2, 2)))
-                )
-                //TODO() figure out a workaround for division leading to var getting stuck at 1, currently using subtraction instead
-                else Assignment.assign(
-                        varName,
-                        MathOperation(OperationType.SUBTRACTION, varName, IntVar.of(random.randInt(2, 2)))
-                )
             }
         //add or subtract by 1
             random.randEasyBool() -> {
@@ -125,11 +104,11 @@ internal class ForLoopProvider(
             else -> {
                 if (up) Assignment.assign(
                         varName,
-                        MathOperation(OperationType.ADDITION, varName, IntVar.of(random.randInt(2, 3)))
+                        MathOperation(OperationType.ADDITION, varName, IntVar.of(random.randInt(1, 2)))
                 )
                 else Assignment.assign(
                         varName,
-                        MathOperation(OperationType.SUBTRACTION, varName, IntVar.of(random.randInt(2, 3)))
+                        MathOperation(OperationType.SUBTRACTION, varName, IntVar.of(random.randInt(1, 2)))
                 )
             }
         }

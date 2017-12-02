@@ -25,6 +25,11 @@ class WeightedRandom(seed: Long) : Random(seed) {
     //inclusive random number
     fun randInt(min: Int = 0, max: Int = 100) = min + if (min >= max) 0 else nextInt(max - min + 1)
 
+    fun simpleInt(): Int {
+        val base = if (randBool()) 2 else 5
+        return base * randInt(1, 5)
+    }
+
     fun randEasyInt(min: Int = 0, max: Int = 100): Int {
         val easyMin = min - (min % 5)
         val easyMax = max + (max % 5)

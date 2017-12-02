@@ -46,7 +46,7 @@ internal class DeclarationProvider(
                 name,
                 VarType.INT_PRIMITIVE,
                 //TODO allow for declarations to be something other than an int literal
-                Value.of(IntVar.random(random, 100))
+                Value.of(IntVar.of(random.simpleInt()))
         )
     }
 
@@ -57,7 +57,7 @@ internal class DeclarationProvider(
         return Declaration.declareWithAssign(
                 name,
                 VarType.INT_ARRAY,
-                Value.of(ArrayVar.of(*Array<IntVar>(length, { IntVar.of(random.randInt()) })))
+                Value.of(ArrayVar.of(*Array<IntVar>(length, { IntVar.of(random.simpleInt()) })))
         )
     }
 
