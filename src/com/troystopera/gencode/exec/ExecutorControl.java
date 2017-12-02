@@ -46,12 +46,12 @@ public class ExecutorControl {
                 results.add(output);
         }
 
-        int vary = 1;
+        int vary = 1 + rand.nextInt(2);
         int sign = 1;
         while (results.size() < count) {
             int i = ((IntVar) correct.getReturnVar()).getValue() + (vary * sign);
             results.add(new ExecOutput(IntVar.of(i)));
-            vary++;
+            vary += 1 + rand.nextInt(3);
             sign *= -1;
         }
 
