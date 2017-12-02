@@ -25,22 +25,33 @@ internal class ManipulationProvider(
             throw GenerationException(IllegalStateException("No ints in scope passed to ManipulationProvider"))
 
         var count = 0
+        val default = {
+            if (scope.isIn(ForLoop::class))
+                MathOperation(OperationType.ADDITION, Variable.of<IntVar>(scope.getRandVar(VarType.INT_PRIMITIVE)), Variable.of<IntVar>(scope.getRandUnmanipVar(VarType.INT_PRIMITIVE)))
+            else easyIntEval.invoke()
+        }
 
         //start by checking for an array generation pattern
         if (scope.hasPattern(Pattern.Type.ARRAY_WALK)) {
+            //manipulate an int that may be used by the array assign
+            val manipulateVar = scope.getRandVar(VarType.INT_PRIMITIVE)!!
+            parent.addExecutable(Assignment.assign(manipulateVar, genIntEvaluation(scope, default, manipulateVar)))
             val arrayWalk = scope.getPattern(Pattern.Type.ARRAY_WALK)!! as Pattern.ArrayWalk
             parent.addExecutable(
                     Assignment.assignArray(
                             arrayWalk.arrayName,
                             Variable.of<IntVar>(arrayWalk.index),
-                            Variable.of<IntVar>(scope.getRandUnmanipVar(VarType.INT_PRIMITIVE)!!)
+                            Variable.of<IntVar>(
+                                    if (random.randBool(.60)) manipulateVar
+                                    else scope.getRandUnmanipVar(VarType.INT_PRIMITIVE)!!
+                            )
                     )
             )
-            count++
+            count += 2
         }
 
-        //manipulate the return var if present
-        if (context.mainIntVar != null) {
+        //manipulate the return var if present and not in an array walk
+        if (!scope.hasPattern(Pattern.Type.ARRAY_WALK) && context.mainIntVar != null) {
             if (scope.isIn(ForLoop::class))
                 parent.addExecutable(forLoopManip(context, scope))
             else
@@ -64,14 +75,10 @@ internal class ManipulationProvider(
     private fun genArrayManipulation(i: Evaluation<IntVar>?, scope: GenScope): Assignment {
         val arr = scope.getRandVar(VarType.INT_ARRAY)!!
         val index = i ?: Value.of(IntVar.of(random.randEasyInt(0, scope.getArrLength(arr) - 1)))
-        val rand = random.randInt(1, 3)
 
         return when {
-            rand == 1 && scope.hasVarType(VarType.INT_PRIMITIVE) -> {
+            random.randBool() && scope.hasVarType(VarType.INT_PRIMITIVE) -> {
                 Assignment.assignArray(arr, index, scope.getRandVar(VarType.INT_PRIMITIVE))
-            }
-            rand == 2 -> {
-                Assignment.assignArray(arr, index, IntVar.of(random.randInt(0, 50)))
             }
             else -> {
                 val srcArr = scope.getRandVar(VarType.INT_ARRAY)!!
