@@ -13,10 +13,9 @@ import com.troystopera.gencode.code.statements.evaluations.*
 import com.troystopera.gencode.generator.*
 import com.troystopera.gencode.generator.GenScope
 import com.troystopera.gencode.generator.VarNameProvider
-import java.util.*
 
 internal class ManipulationProvider(
-        random: WeightedRandom,
+        random: DifficultyRandom,
         topics: Array<out ProblemTopic>
 ) : StatementProvider(ProviderType.MANIPULATION, random, topics) {
 

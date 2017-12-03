@@ -3,18 +3,17 @@ package com.troystopera.gencode.generator.components
 import com.troystopera.gencode.ProblemTopic
 import com.troystopera.gencode.code.Component
 import com.troystopera.gencode.generator.*
-import java.util.*
 
 internal abstract class ComponentProvider(
         type: ProviderType,
-        random: WeightedRandom,
+        random: DifficultyRandom,
         topics: Array<out ProblemTopic>) : CodeProvider(type, random, topics) {
 
     abstract fun generate(parentType: Component.Type, varProvider: VarNameProvider, scope: GenScope, context: GenContext): Result
 
     internal companion object {
 
-        internal fun fromTopic(topic: ProblemTopic, topics: Array<out ProblemTopic>, random: WeightedRandom): ComponentProvider {
+        internal fun fromTopic(topic: ProblemTopic, topics: Array<out ProblemTopic>, random: DifficultyRandom): ComponentProvider {
             return when (topic) {
                 ProblemTopic.FOR_LOOP -> ForLoopProvider(random, topics)
                 ProblemTopic.CONDITIONAL -> ConditionalProvider(random, topics)

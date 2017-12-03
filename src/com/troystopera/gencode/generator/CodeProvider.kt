@@ -13,14 +13,13 @@ import com.troystopera.gencode.code.statements.evaluations.Variable
 
 internal abstract class CodeProvider(
         val type: ProviderType,
-        protected val random: WeightedRandom,
+        protected val random: DifficultyRandom,
         protected val topics: Array<out ProblemTopic>
 ) {
 
     protected val easyIntEval = { Value.of(IntVar.of(random.randEasyInt(5, 50))) }
 
-    protected fun genMathOperation(scope: GenScope, manipulateVar: String,
-                                   opType: OperationType = RandomTypes.operationType(random.difficulty, random)): MathOperation {
+    protected fun genMathOperation(scope: GenScope, manipulateVar: String, opType: OperationType): MathOperation {
         //TODO() better handle division and modulo divide by 0
         return if (opType != OperationType.DIVISION && opType != OperationType.MODULUS && scope.hasVarType(VarType.INT_PRIMITIVE) && random.randHardBool())
             MathOperation(opType, manipulateVar, scope.getRandVar(VarType.INT_PRIMITIVE))
@@ -38,7 +37,7 @@ internal abstract class CodeProvider(
         //if random bool and an int in record
         return if (random.randBool() && scope.hasVarType(VarType.INT_PRIMITIVE, *ignore)) {
             //hard chance of using a math operation
-            if (random.randHardBool()) genMathOperation(scope, scope.getRandVar(VarType.INT_PRIMITIVE, *ignore)!!)
+            if (random.randHardBool()) genMathOperation(scope, scope.getRandVar(VarType.INT_PRIMITIVE, *ignore)!!, RandomTypes.operationType(random.difficulty, random))
             //otherwise just a simple variable
             else Variable.of(scope.getRandVar(VarType.INT_PRIMITIVE, *ignore))
         } else default.invoke()

@@ -16,7 +16,7 @@ import com.troystopera.gencode.generator.statements.ReturnIntProvider
 import java.util.*
 
 class CodeGenerator private constructor(
-        private val random: WeightedRandom,
+        private val random: DifficultyRandom,
         vararg private val topics: ProblemTopic
 ) {
 
@@ -35,7 +35,7 @@ class CodeGenerator private constructor(
         providers = p
     }
 
-    constructor(seed: Long, vararg topics: ProblemTopic) : this(WeightedRandom(seed), *topics)
+    constructor(seed: Long, vararg topics: ProblemTopic) : this(DifficultyRandom(seed), *topics)
 
     constructor(vararg topics: ProblemTopic) : this(Random().nextLong(), *topics)
 

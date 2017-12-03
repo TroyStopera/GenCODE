@@ -1,6 +1,5 @@
 package com.troystopera.gencode.generator
 
-import com.troystopera.gencode.code.statements.evaluations.ComparisonType
 import com.troystopera.gencode.code.statements.evaluations.OperationType
 import java.util.*
 
@@ -13,11 +12,6 @@ object RandomTypes {
             else -> 2
         }
         return OperationType.values()[random.nextInt(maxIndex)]
-    }
-
-    fun comparisonType(random: Random): ComparisonType {
-        val values = ComparisonType.values()
-        return values[random.nextInt(values.size)]
     }
 
 }

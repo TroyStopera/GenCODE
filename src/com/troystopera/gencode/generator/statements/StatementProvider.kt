@@ -7,7 +7,7 @@ import com.troystopera.gencode.generator.*
 
 internal abstract class StatementProvider(
         type: ProviderType,
-        random: WeightedRandom,
+        random: DifficultyRandom,
         topics: Array<out ProblemTopic>) : CodeProvider(type, random, topics) {
 
     abstract fun populate(parent: CodeBlock, parentCompType: Component.Type, varProvider: VarNameProvider, scope: GenScope, context: GenContext)

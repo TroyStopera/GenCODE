@@ -2,7 +2,7 @@ package com.troystopera.gencode.generator
 
 import java.util.*
 
-class WeightedRandom(seed: Long) : Random(seed) {
+class DifficultyRandom(seed: Long) : Random(seed) {
 
     var difficulty: Double = .5
         set (value) {
@@ -13,11 +13,22 @@ class WeightedRandom(seed: Long) : Random(seed) {
             }
         }
 
+    fun weightedHighNumber(min: Int, max: Int): Int {
+        var result = min
+        for (i in 1..max - min)
+            if (randHardBool()) result++
+        return result
+    }
+
     //random boolean with default probability 50%
     fun randBool(probability: Double = 0.5): Boolean = nextDouble() > probability
 
     //probability more likely if difficulty high - probability never greater than 90%
-    fun randHardBool() = nextDouble() < if (difficulty > .9) .9 else difficulty
+    fun randHardBool(minProb: Double = difficulty) = nextDouble() < when {
+        difficulty > .9 -> .9
+        difficulty < minProb -> minProb
+        else -> difficulty
+    }
 
     //probability more likely if difficulty low - never greater than 90% nor less than 10%
     fun randEasyBool() = nextDouble() > if (difficulty < .1) .1 else if (difficulty > .9) .9 else difficulty

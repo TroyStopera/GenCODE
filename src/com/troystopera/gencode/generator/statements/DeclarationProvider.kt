@@ -11,10 +11,9 @@ import com.troystopera.gencode.code.statements.evaluations.Value
 import com.troystopera.gencode.generator.*
 import com.troystopera.gencode.generator.GenScope
 import com.troystopera.gencode.generator.VarNameProvider
-import java.util.*
 
 internal class DeclarationProvider(
-        random: WeightedRandom,
+        random: DifficultyRandom,
         topics: Array<out ProblemTopic>
 ) : StatementProvider(ProviderType.DECLARATION, random, topics) {
 

@@ -14,7 +14,7 @@ import com.troystopera.gencode.generator.GenScope
 import com.troystopera.gencode.generator.VarNameProvider
 
 internal class ForLoopProvider(
-        random: WeightedRandom,
+        random: DifficultyRandom,
         topics: Array<out ProblemTopic>
 ) : ComponentProvider(ProviderType.FOR_LOOP, random, topics) {
 

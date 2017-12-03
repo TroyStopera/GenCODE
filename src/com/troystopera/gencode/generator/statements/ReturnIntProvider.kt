@@ -12,7 +12,7 @@ import com.troystopera.gencode.generator.GenScope
 import com.troystopera.gencode.generator.VarNameProvider
 
 internal class ReturnIntProvider(
-        random: WeightedRandom,
+        random: DifficultyRandom,
         topics: Array<out ProblemTopic>
 ) : StatementProvider(ProviderType.RETURN, random, topics) {
 
