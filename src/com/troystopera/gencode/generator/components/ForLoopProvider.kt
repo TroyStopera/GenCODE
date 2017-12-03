@@ -40,7 +40,7 @@ internal class ForLoopProvider(
 
     fun createPattern(intName: String, scope: GenScope): Pattern? {
         //array walk
-        if (scope.hasVarType(VarType.INT_ARRAY) && !scope.hasPattern(Pattern.Type.ARRAY_WALK)) {
+        if (scope.hasVarType(VarType.INT_ARRAY) && !scope.hasPattern(Pattern.ArrayWalk::class)) {
             val array = scope.getRandVar(VarType.INT_ARRAY)!!
             return Pattern.ArrayWalk(array, intName)
         }

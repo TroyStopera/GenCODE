@@ -1,11 +1,9 @@
 package com.troystopera.gencode.generator
 
-sealed class Pattern(val type: Type) {
+sealed class Pattern {
 
-    data class ArrayWalk(val arrayName: String, val index: String) : Pattern(Type.ARRAY_WALK)
+    data class ArrayWalk(val arrayName: String, val index: String) : Pattern()
 
-    enum class Type {
-        ARRAY_WALK
-    }
+    data class LoopSkipManip(val up: Boolean, val intName: String) : Pattern()
 
 }

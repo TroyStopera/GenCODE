@@ -7,7 +7,7 @@ import kotlin.reflect.KClass
 
 class GenScope private constructor(
         val history: History,
-        private val compClass: KClass<out Component>?,
+        val compClass: KClass<out Component>?,
         private val parent: GenScope?,
         private val depth: Int,
         private val random: Random,
@@ -29,13 +29,14 @@ class GenScope private constructor(
         patterns.add(pattern)
     }
 
-    fun hasPattern(type: Pattern.Type): Boolean {
-        patterns.forEach { if (it.type == type) return true }
+    fun hasPattern(klass: KClass<out Pattern>): Boolean {
+        patterns.forEach { if (it::class == klass) return true }
         return false
     }
 
-    fun getPattern(type: Pattern.Type): Pattern? {
-        val typePatterns = patterns.filter { it.type == type }
+    fun getPattern(klass: KClass<out Pattern>): Pattern? {
+        val typePatterns = patterns.filter { it::class == klass }
+        //if there are duplicate patterns that can be used select randomly
         return if (typePatterns.isNotEmpty()) {
             typePatterns[random.nextInt(typePatterns.size)]
         } else null

@@ -1,15 +1,20 @@
 package com.troystopera.gencode.generator
 
+import com.sun.org.apache.bcel.internal.classfile.Code
 import com.troystopera.gencode.Problem
 import com.troystopera.gencode.ProblemTopic
 import com.troystopera.gencode.ProblemType
 import com.troystopera.gencode.`var`.VarType
 import com.troystopera.gencode.code.BlankLine
 import com.troystopera.gencode.code.Component
+import com.troystopera.gencode.code.components.CodeBlock
+import com.troystopera.gencode.code.components.ForLoop
 import com.troystopera.gencode.code.components.Function
 import com.troystopera.gencode.code.statements.Return
 import com.troystopera.gencode.code.statements.evaluations.ArrayAccess
 import com.troystopera.gencode.generator.components.ComponentProvider
+import com.troystopera.gencode.generator.components.ConditionalProvider
+import com.troystopera.gencode.generator.components.ForLoopProvider
 import com.troystopera.gencode.generator.statements.DeclarationProvider
 import com.troystopera.gencode.generator.statements.ManipulationProvider
 import com.troystopera.gencode.generator.statements.ReturnIntProvider
@@ -20,20 +25,8 @@ class CodeGenerator private constructor(
         vararg private val topics: ProblemTopic
 ) {
 
-    private val providers: List<ComponentProvider>
     private val declarationProvider = DeclarationProvider(random, topics)
-    private val returnIntProvider = ReturnIntProvider(random, topics)
     private val manipulationProvider = ManipulationProvider(random, topics)
-
-    init {
-        val p = topics.distinct()
-                .filter { ComponentProvider.hasProvider(it) }
-                .map { ComponentProvider.fromTopic(it, topics, random) }.toMutableList()
-        //TODO create array provider so that there is a guarantee of having providers
-        if (p.isEmpty())
-            p.add(ComponentProvider.fromTopic(ProblemTopic.FOR_LOOP, topics, random))
-        providers = p
-    }
 
     constructor(seed: Long, vararg topics: ProblemTopic) : this(DifficultyRandom(seed), *topics)
 
@@ -72,7 +65,7 @@ class CodeGenerator private constructor(
         declarationProvider.populate(main, Component.Type.GENERIC, provider, rootRecord, context)
         context.mainIntVar = rootRecord.getRandVar(VarType.INT_PRIMITIVE)
         main.addExecutable(BlankLine.get())
-        main.addExecutable(gen(provider, rootRecord, 1, context))
+        main.addExecutable(gen(provider, rootRecord, context, NestStructure.get(hashSetOf(*topics), difficulty, random)))
         //add a default return to ensure a complete program
         if (context.mainArray != null) {
             val array = context.mainArray!!
@@ -85,25 +78,106 @@ class CodeGenerator private constructor(
         return builder.build()
     }
 
-    private fun gen(variableProvider: VarNameProvider, scope: GenScope, nestDepth: Int, context: GenContext): Component {
-        val baseComponentResult =
-                providers[random.nextInt(providers.size)].generate(Component.Type.GENERIC, variableProvider, scope, context)
+    private fun gen(variableProvider: VarNameProvider, scope: GenScope, context: GenContext, nestStructure: NestStructure): Component {
+        when (nestStructure) {
+            is NestStructure.NestedLoop -> {
+                val provider = ForLoopProvider(random, topics)
+                val block = CodeBlock()
+                var temp = block
+                var genScope = scope
+                for (i in 1..nestStructure.depth) {
+                    val result = provider.generate(temp.type, variableProvider, genScope, context)
+                    temp.addExecutable(result.component)
+                    temp = result.component as ForLoop
+                    genScope = result.scope
+                }
+                manipulationProvider.populate(temp, temp.type, variableProvider, genScope, context)
+                return block
+            }
 
-        for (block in baseComponentResult.newBlocks) {
-            if (nestDepth < MAX_NESTING_DEPTH && random.randHardBool()) {
-                block.addExecutable(gen(
-                        variableProvider,
-                        baseComponentResult.scope.createChildRecord(baseComponentResult.component::class),
-                        nestDepth + 1,
-                        context)
-                )
-            } else //if (baseComponentResult.component is ForLoop || random.randEasyBool())
-                manipulationProvider.populate(block, baseComponentResult.component.type, variableProvider, baseComponentResult.scope, context)
-            // else
-            // returnIntProvider.populate(block, baseComponentResult.component.type, variableProvider, baseComponentResult.scope, context)
+            is NestStructure.NestedConditional -> {
+                val provider = ConditionalProvider(random, topics)
+                //outer conditional
+                val conditional = provider.generate(Component.Type.GENERIC, variableProvider, scope, context)
+
+                //1st nest
+                for (b1 in conditional.newBlocks) {
+                    //possibly don't nest
+                    if (random.randEasyBool()) {
+                        manipulationProvider.populate(b1, conditional.component.type, variableProvider, conditional.scope, context)
+                    } else {
+                        val c1 = provider.generate(Component.Type.CONDITIONAL, variableProvider, conditional.scope, context)
+                        b1.addExecutable(c1.component)
+
+                        //add 2nd nest if needed
+                        for (b2 in c1.newBlocks) {
+                            if (nestStructure.depth > 2 && random.nextBoolean()) {
+                                val c2 = provider.generate(Component.Type.CONDITIONAL, variableProvider, c1.scope, context)
+                                b2.addExecutable(c2.component)
+
+                                for (b3 in c2.newBlocks)
+                                    manipulationProvider.populate(b3, c2.component.type, variableProvider, c2.scope, context)
+                            } else manipulationProvider.populate(b2, c1.component.type, variableProvider, c1.scope, context)
+                        }
+                    }
+                }
+                return conditional.component
+            }
+
+            is NestStructure.NestedLoopConditional -> {
+                val loopProvider = ForLoopProvider(random, topics)
+                val condProvider = ConditionalProvider(random, topics)
+
+                val block = CodeBlock()
+                var loopResult = loopProvider.generate(Component.Type.GENERIC, variableProvider, scope, context)
+                var loop = loopResult.component
+                var s = loopResult.scope
+                block.addExecutable(loop)
+
+                //add second for loop if needed
+                if (nestStructure.depth > 2) {
+                    loopResult = loopProvider.generate(loop.type, variableProvider, s, context)
+                    (loop as CodeBlock).addExecutable(loopResult.component)
+                    loop = loopResult.component
+                    s = loopResult.scope
+                }
+
+                //add conditional
+                val condResult = condProvider.generate(loop.type, variableProvider, s, context)
+                (loop as CodeBlock).addExecutable(condResult.component)
+                for (b in condResult.newBlocks)
+                    manipulationProvider.populate(b, condResult.component.type, variableProvider, condResult.scope, context)
+                return block
+            }
+
+            NestStructure.Companion.SingleLoop -> {
+                val result = ForLoopProvider(random, topics).generate(Component.Type.GENERIC, variableProvider, scope, context)
+                val loop = result.component as CodeBlock
+                val s = result.scope
+                manipulationProvider.populate(loop, loop.type, variableProvider, s, context)
+                return loop
+            }
+
+            NestStructure.Companion.SingleConditional -> {
+                val result = ConditionalProvider(random, topics).generate(Component.Type.GENERIC, variableProvider, scope, context)
+                for (block in result.newBlocks)
+                    manipulationProvider.populate(block, result.component.type, variableProvider, result.scope, context)
+                return result.component
+            }
+
+            NestStructure.Companion.ComboLoopConditional -> {
+                val block = CodeBlock()
+                val loop = ForLoopProvider(random, topics).generate(Component.Type.GENERIC, variableProvider, scope, context)
+                manipulationProvider.populate(loop.component as CodeBlock, loop.component.type, variableProvider, loop.scope, context)
+                val conditional = ConditionalProvider(random, topics).generate(Component.Type.GENERIC, variableProvider, scope, context)
+                for (b in conditional.newBlocks)
+                    manipulationProvider.populate(b, conditional.component.type, variableProvider, conditional.scope, context)
+                block.addExecutable(loop.component)
+                block.addExecutable(BlankLine.get())
+                block.addExecutable(conditional.component)
+                return block
+            }
         }
-
-        return baseComponentResult.component
     }
 
 }

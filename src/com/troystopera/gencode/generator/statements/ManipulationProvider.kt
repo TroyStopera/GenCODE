@@ -31,11 +31,11 @@ internal class ManipulationProvider(
         }
 
         //start by checking for an array generation pattern
-        if (scope.hasPattern(Pattern.Type.ARRAY_WALK)) {
+        if (scope.hasPattern(Pattern.ArrayWalk::class)) {
             //manipulate an int that may be used by the array assign
             val manipulateVar = scope.getRandVar(VarType.INT_PRIMITIVE)!!
             parent.addExecutable(Assignment.assign(manipulateVar, genIntEvaluation(scope, default, manipulateVar)))
-            val arrayWalk = scope.getPattern(Pattern.Type.ARRAY_WALK)!! as Pattern.ArrayWalk
+            val arrayWalk = scope.getPattern(Pattern.ArrayWalk::class)!! as Pattern.ArrayWalk
             parent.addExecutable(
                     Assignment.assignArray(
                             arrayWalk.arrayName,
@@ -50,7 +50,7 @@ internal class ManipulationProvider(
         }
 
         //manipulate the return var if present and not in an array walk
-        if (!scope.hasPattern(Pattern.Type.ARRAY_WALK) && context.mainIntVar != null) {
+        if (!scope.hasPattern(Pattern.ArrayWalk::class) && context.mainIntVar != null) {
             if (scope.isIn(ForLoop::class))
                 parent.addExecutable(forLoopManip(context, scope))
             else
