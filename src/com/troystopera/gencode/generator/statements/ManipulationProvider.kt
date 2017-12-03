@@ -13,6 +13,7 @@ import com.troystopera.gencode.code.statements.evaluations.*
 import com.troystopera.gencode.generator.*
 import com.troystopera.gencode.generator.GenScope
 import com.troystopera.gencode.generator.VarNameProvider
+import com.troystopera.gencode.generator.constraints.ManipulationConstraints
 
 internal class ManipulationProvider(
         random: DifficultyRandom,
@@ -32,21 +33,25 @@ internal class ManipulationProvider(
 
         //start by checking for an array generation pattern
         if (scope.hasPattern(Pattern.ArrayWalk::class)) {
-            //manipulate an int that may be used by the array assign
-            val manipulateVar = scope.getRandVar(VarType.INT_PRIMITIVE)!!
-            parent.addExecutable(Assignment.assign(manipulateVar, genIntEvaluation(scope, default, manipulateVar)))
             val arrayWalk = scope.getPattern(Pattern.ArrayWalk::class)!! as Pattern.ArrayWalk
-            parent.addExecutable(
-                    Assignment.assignArray(
-                            arrayWalk.arrayName,
-                            Variable.of<IntVar>(arrayWalk.index),
-                            Variable.of<IntVar>(
-                                    if (random.randBool(.60)) manipulateVar
-                                    else scope.getRandUnmanipVar(VarType.INT_PRIMITIVE)!!
-                            )
-                    )
-            )
-            count += 2
+            if (ManipulationConstraints.useDirectManipulation(random)) {
+                parent.addExecutable(
+                        Assignment.assignArray(
+                                arrayWalk.arrayName,
+                                Variable.of<IntVar>(arrayWalk.index),
+                                Variable.of<IntVar>(arrayWalk.index)))
+                count++
+            } else {
+                //manipulate an int that may be used by the array assign
+                val manipulateVar = scope.getRandVar(VarType.INT_PRIMITIVE)!!
+                parent.addExecutable(Assignment.assign(manipulateVar, genIntEvaluation(scope, default, manipulateVar)))
+                parent.addExecutable(
+                        Assignment.assignArray(
+                                arrayWalk.arrayName,
+                                Variable.of<IntVar>(arrayWalk.index),
+                                Variable.of<IntVar>(manipulateVar)))
+                count += 2
+            }
         }
 
         //manipulate the return var if present and not in an array walk

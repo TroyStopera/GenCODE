@@ -12,6 +12,7 @@ import com.troystopera.gencode.code.statements.evaluations.*
 import com.troystopera.gencode.generator.*
 import com.troystopera.gencode.generator.GenScope
 import com.troystopera.gencode.generator.VarNameProvider
+import com.troystopera.gencode.generator.constraints.ForLoopConstraints
 
 internal class ForLoopProvider(
         random: DifficultyRandom,
@@ -29,7 +30,7 @@ internal class ForLoopProvider(
         }
         newRecord.addVar(varName, VarType.INT_PRIMITIVE, false)
 
-        val up = random.randBool()
+        val up = ForLoopConstraints.useIncrease(random, pattern)
         val loop = ForLoop(
                 genDeclaration(varName, up, newRecord, pattern),
                 genComparison(varName, up, newRecord, pattern),
