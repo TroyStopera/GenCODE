@@ -53,6 +53,7 @@ class CodeGenerator private constructor(
 
     fun generate(difficulty: Double): Problem {
         random.difficulty = difficulty
+        val nestPattern = NestStructure.get(hashSetOf(*topics), difficulty, random)
         val context = GenContext()
         val provider = VarNameProvider()
         val rootRecord = GenScope(random)
@@ -60,12 +61,13 @@ class CodeGenerator private constructor(
         builder.setType(ProblemType.RETURN_VALUE)
         builder.setTopics(*topics)
         builder.setDifficulty(difficulty)
+        rootRecord.addPattern(nestPattern)
 
         val main = Function("example", VarType.INT_PRIMITIVE)
         declarationProvider.populate(main, Component.Type.GENERIC, provider, rootRecord, context)
         context.mainIntVar = rootRecord.getRandVar(VarType.INT_PRIMITIVE)
         main.addExecutable(BlankLine.get())
-        main.addExecutable(gen(provider, rootRecord, context, NestStructure.get(hashSetOf(*topics), difficulty, random)))
+        main.addExecutable(gen(provider, rootRecord, context, nestPattern))
         //add a default return to ensure a complete program
         if (context.mainArray != null) {
             val array = context.mainArray!!

@@ -4,7 +4,7 @@ import com.troystopera.gencode.ProblemTopic
 import java.util.*
 import kotlin.collections.HashSet
 
-sealed class NestStructure {
+sealed class NestStructure : Pattern.NestPattern() {
 
     class NestedLoop(val depth: Int) : NestStructure()
 

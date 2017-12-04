@@ -34,7 +34,7 @@ internal class ForLoopProvider(
         val loop = ForLoop(
                 genDeclaration(varName, up, newRecord, pattern),
                 genComparison(varName, up, newRecord, pattern),
-                genAssignment(varName, up, pattern)
+                genAssignment(varName, up, scope, pattern)
         )
         return Result(loop, arrayOf(loop), newRecord)
     }
@@ -90,14 +90,14 @@ internal class ForLoopProvider(
         return Comparison(type, Variable.of<IntVar>(varName), value)
     }
 
-    private fun genAssignment(varName: String, up: Boolean, pattern: Pattern?): Assignment {
+    private fun genAssignment(varName: String, up: Boolean, scope: GenScope, pattern: Pattern?): Assignment {
         return when {
             pattern is Pattern.ArrayWalk -> {
                 if (up) Assignment.increment(varName)
                 else Assignment.decrement(varName)
             }
         //add or subtract by 1
-            random.randEasyBool() -> {
+            ForLoopConstraints.useSingleStep(random, scope) -> {
                 if (up) Assignment.increment(varName)
                 else Assignment.decrement(varName)
             }

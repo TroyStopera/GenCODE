@@ -43,13 +43,13 @@ internal class ManipulationProvider(
                 count++
             } else {
                 //manipulate an int that may be used by the array assign
-                val manipulateVar = scope.getRandVar(VarType.INT_PRIMITIVE)!!
-                parent.addExecutable(Assignment.assign(manipulateVar, genIntEvaluation(scope, default, manipulateVar)))
+                val assign = forLoopManip(context, scope)
+                parent.addExecutable(assign)
                 parent.addExecutable(
                         Assignment.assignArray(
                                 arrayWalk.arrayName,
                                 Variable.of<IntVar>(arrayWalk.index),
-                                Variable.of<IntVar>(manipulateVar)))
+                                Variable.of<IntVar>(assign.getVar())))
                 count += 2
             }
         }
@@ -94,9 +94,9 @@ internal class ManipulationProvider(
 
     private fun forLoopManip(context: GenContext, scope: GenScope): Assignment {
         var opType = RandomTypes.operationType(random.difficulty, random)
-        //TODO find a better fix for divide by 0
-        if (opType == OperationType.DIVISION || opType == OperationType.MODULUS)
-            opType = OperationType.MULTIPLICATION
+        //TODO find a better fix for divide by 0 and huge multiplication
+        if (opType == OperationType.DIVISION || opType == OperationType.MODULUS || opType == OperationType.MULTIPLICATION)
+            opType = OperationType.ADDITION
         val op = MathOperation(opType, context.mainIntVar, scope.getRandUnmanipVar(VarType.INT_PRIMITIVE))
         return Assignment.assign(context.mainIntVar, op)
     }
