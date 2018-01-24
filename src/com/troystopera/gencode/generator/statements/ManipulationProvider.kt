@@ -2,32 +2,38 @@ package com.troystopera.gencode.generator.statements
 
 import com.troystopera.gencode.GenerationException
 import com.troystopera.gencode.ProblemTopic
-import com.troystopera.gencode.`var`.IntVar
-import com.troystopera.gencode.`var`.VarType
-import com.troystopera.gencode.code.Component
-import com.troystopera.gencode.code.components.CodeBlock
-import com.troystopera.gencode.code.components.ForLoop
-import com.troystopera.gencode.code.statements.Assignment
-import com.troystopera.gencode.code.statements.Evaluation
-import com.troystopera.gencode.code.statements.evaluations.*
 import com.troystopera.gencode.generator.*
 import com.troystopera.gencode.generator.GenScope
 import com.troystopera.gencode.generator.VarNameProvider
 import com.troystopera.gencode.generator.constraints.ManipulationConstraints
+import com.troystopera.jkode.Component
+import com.troystopera.jkode.Evaluation
+import com.troystopera.jkode.components.CodeBlock
+import com.troystopera.jkode.components.ForLoop
+import com.troystopera.jkode.evaluations.ArrayAccess
+import com.troystopera.jkode.evaluations.MathOperation
+import com.troystopera.jkode.evaluations.Variable
+import com.troystopera.jkode.statements.ArrayAssign
+import com.troystopera.jkode.statements.Assignment
+import com.troystopera.jkode.vars.IntVar
+import com.troystopera.jkode.vars.VarType
 
 internal class ManipulationProvider(
         random: DifficultyRandom,
         topics: Array<out ProblemTopic>
 ) : StatementProvider(ProviderType.MANIPULATION, random, topics) {
 
-    override fun populate(parent: CodeBlock, parentCompType: Component.Type, varProvider: VarNameProvider, scope: GenScope, context: GenContext) {
-        if (!scope.hasVarType(VarType.INT_PRIMITIVE))
+    override fun populate(parent: CodeBlock, varProvider: VarNameProvider, scope: GenScope, context: GenContext) {
+        if (!scope.hasVarType(VarType.INT))
             throw GenerationException(IllegalStateException("No ints in scope passed to ManipulationProvider"))
 
         var count = 0
         val default = {
             if (scope.isIn(ForLoop::class))
-                MathOperation(OperationType.ADDITION, Variable.of<IntVar>(scope.getRandVar(VarType.INT_PRIMITIVE)), Variable.of<IntVar>(scope.getRandUnmanipVar(VarType.INT_PRIMITIVE)))
+                MathOperation(
+                        MathOperation.Type.ADD,
+                        Variable(VarType.INT, scope.getRandVar(VarType.INT)!!),
+                        Variable(VarType.INT, scope.getRandUnmanipVar(VarType.INT)!!))
             else easyIntEval.invoke()
         }
 
@@ -35,21 +41,21 @@ internal class ManipulationProvider(
         if (scope.hasPattern(Pattern.ArrayWalk::class)) {
             val arrayWalk = scope.getPattern(Pattern.ArrayWalk::class)!! as Pattern.ArrayWalk
             if (ManipulationConstraints.useDirectManipulation(random)) {
-                parent.addExecutable(
-                        Assignment.assignArray(
-                                arrayWalk.arrayName,
-                                Variable.of<IntVar>(arrayWalk.index),
-                                Variable.of<IntVar>(arrayWalk.index)))
+                parent.add(ArrayAssign(
+                        Variable(VarType.ARRAY[VarType.INT], arrayWalk.arrayName),
+                        Variable(VarType.INT, arrayWalk.index),
+                        Variable(VarType.INT, arrayWalk.index)
+                ))
                 count++
             } else {
                 //manipulate an int that may be used by the array assign
                 val assign = forLoopManip(context, scope)
-                parent.addExecutable(assign)
-                parent.addExecutable(
-                        Assignment.assignArray(
-                                arrayWalk.arrayName,
-                                Variable.of<IntVar>(arrayWalk.index),
-                                Variable.of<IntVar>(assign.getVar())))
+                parent.add(assign)
+                parent.add(ArrayAssign(
+                        Variable(VarType.ARRAY[VarType.INT], arrayWalk.arrayName),
+                        Variable(VarType.INT, arrayWalk.index),
+                        Variable(VarType.INT, assign.varName)
+                ))
                 count += 2
             }
         }
@@ -57,37 +63,48 @@ internal class ManipulationProvider(
         //manipulate the return var if present and not in an array walk
         if (!scope.hasPattern(Pattern.ArrayWalk::class) && context.mainIntVar != null) {
             if (scope.isIn(ForLoop::class))
-                parent.addExecutable(forLoopManip(context, scope))
+                parent.add(forLoopManip(context, scope))
             else
-                parent.addExecutable(Assignment.assign(context.mainIntVar, genIntEvaluation(scope, context.mainIntVar!!)))
+                parent.add(Assignment(context.mainIntVar!!, genIntEvaluation(scope, context.mainIntVar!!)))
             count++
         }
 
         while (count < MIN_OPERATIONS || (count < MAX_OPERATIONS && random.randHardBool())) {
-            val manipulateVar = scope.getRandVar(VarType.INT_PRIMITIVE)!!
+            val manipulateVar = scope.getRandVar(VarType.INT)!!
             //potentially manipulate an array with 33% probability
-            if (random.randBool(.33) && topics.contains(ProblemTopic.ARRAY) && scope.hasVarType(VarType.INT_ARRAY))
-                parent.addExecutable(genArrayManipulation(null, scope))
+            if (random.randBool(.33) && topics.contains(ProblemTopic.ARRAY) && scope.hasVarType(VarType.ARRAY[VarType.INT]))
+                parent.add(genArrayManipulation(null, scope))
             //standard int manipulation
             else
-                parent.addExecutable(Assignment.assign(manipulateVar, genIntEvaluation(scope, manipulateVar)))
+                parent.add(Assignment(manipulateVar, genIntEvaluation(scope, manipulateVar)))
             count++
         }
     }
 
     //TODO consolidate array manipulations
-    private fun genArrayManipulation(i: Evaluation<IntVar>?, scope: GenScope): Assignment {
-        val arr = scope.getRandVar(VarType.INT_ARRAY)!!
-        val index = i ?: Value.of(IntVar.of(random.randEasyInt(0, scope.getArrLength(arr) - 1)))
+    private fun genArrayManipulation(i: Evaluation<IntVar>?, scope: GenScope): ArrayAssign<*> {
+        val arr = scope.getRandVar(VarType.ARRAY[VarType.INT])!!
+        val index = i ?: IntVar[random.randEasyInt(0, scope.getArrLength(arr) - 1)].asEval()
 
         return when {
-            random.randBool() && scope.hasVarType(VarType.INT_PRIMITIVE) -> {
-                Assignment.assignArray(arr, index, scope.getRandVar(VarType.INT_PRIMITIVE))
+            random.randBool() && scope.hasVarType(VarType.INT) -> {
+                ArrayAssign(
+                        Variable(VarType.ARRAY[VarType.INT], arr),
+                        index,
+                        Variable(VarType.INT, scope.getRandVar(VarType.INT)!!)
+                )
             }
             else -> {
-                val srcArr = scope.getRandVar(VarType.INT_ARRAY)!!
+                val srcArr = scope.getRandVar(VarType.ARRAY[VarType.INT])!!
                 val srcIndex = random.randEasyInt(0, scope.getArrLength(srcArr) - 1)
-                Assignment.assignArray(arr, index, ArrayAccess.access(srcArr, srcIndex))
+                ArrayAssign(
+                        Variable(VarType.ARRAY[VarType.INT], arr),
+                        index,
+                        ArrayAccess(VarType.INT,
+                                Variable(VarType.ARRAY[VarType.INT], srcArr),
+                                IntVar[srcIndex].asEval()
+                        )
+                )
             }
         }
     }
@@ -95,10 +112,14 @@ internal class ManipulationProvider(
     private fun forLoopManip(context: GenContext, scope: GenScope): Assignment {
         var opType = RandomTypes.operationType(random.difficulty, random)
         //TODO find a better fix for divide by 0 and huge multiplication
-        if (opType == OperationType.DIVISION || opType == OperationType.MODULUS || opType == OperationType.MULTIPLICATION)
-            opType = OperationType.ADDITION
-        val op = MathOperation(opType, context.mainIntVar, scope.getRandUnmanipVar(VarType.INT_PRIMITIVE))
-        return Assignment.assign(context.mainIntVar, op)
+        if (opType == MathOperation.Type.DIVIDE || opType == MathOperation.Type.MODULO || opType == MathOperation.Type.MULTIPLY)
+            opType = MathOperation.Type.ADD
+        val op = MathOperation(
+                opType,
+                Variable(VarType.INT, context.mainIntVar!!),
+                Variable(VarType.INT, scope.getRandUnmanipVar(VarType.INT)!!)
+        )
+        return Assignment(context.mainIntVar!!, op)
     }
 
 }

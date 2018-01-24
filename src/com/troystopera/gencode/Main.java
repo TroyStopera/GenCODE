@@ -1,10 +1,9 @@
 package com.troystopera.gencode;
 
-import com.troystopera.gencode.exec.ExecOutput;
-import com.troystopera.gencode.exec.ExecutorControl;
-import com.troystopera.gencode.format.Format;
 import com.troystopera.gencode.generator.CodeGenerator;
-import com.troystopera.gencode.var.Var;
+import com.troystopera.jkode.exec.Executor;
+import com.troystopera.jkode.exec.Output;
+import com.troystopera.jkode.format.JavaFormat;
 
 import java.util.*;
 
@@ -35,14 +34,11 @@ public class Main {
         int problemNum = 1;
         for (Problem problem : generator.generate(difficultyLow, difficultyHigh, count)) {
             System.out.println("Problem: " + problemNum);
-            System.out.println(Format.java().format(problem));
+            System.out.println(JavaFormat.INSTANCE.formatFunction(problem.getMainFunction(), ""));
 
-            ExecutorControl control = new ExecutorControl(problem);
-            System.out.println("Answer: " + control.getOutput().getReturnVar().toString());
-            System.out.print("Distractors: ");
-            for (ExecOutput output : control.getFalseOutput(3)) {
-                System.out.print(output.getReturnVar().toString() + "  ");
-            }
+            Executor exec = new Executor();
+            Output output = exec.execute(problem.getMainFunction());
+            System.out.println("Answer: " + output.getReturnVar().toString());
             System.out.println("\n\n");
             problemNum++;
         }

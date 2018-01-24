@@ -1,6 +1,6 @@
 package com.troystopera.gencode;
 
-import com.troystopera.gencode.code.components.Function;
+import com.troystopera.jkode.JFunction;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
@@ -12,13 +12,13 @@ import java.util.List;
  */
 public class Problem implements Comparable<Problem> {
 
-    private final Function mainFunction;
-    private final List<Function> functions = new LinkedList<>();
+    private final JFunction mainFunction;
+    private final List<JFunction> functions = new LinkedList<>();
     private final ProblemTopic[] topics;
     private final ProblemType type;
     private final double difficulty;
 
-    public Problem(Function mainFunction, Collection<Function> functions, ProblemTopic[] topics, ProblemType type, double difficulty) {
+    public Problem(JFunction mainFunction, Collection<JFunction> functions, ProblemTopic[] topics, ProblemType type, double difficulty) {
         this.mainFunction = mainFunction;
         this.functions.addAll(functions);
         this.topics = topics;
@@ -26,11 +26,11 @@ public class Problem implements Comparable<Problem> {
         this.difficulty = difficulty;
     }
 
-    public Function getMainFunction() {
+    public JFunction getMainFunction() {
         return mainFunction;
     }
 
-    public List<Function> getFunctions() {
+    public List<JFunction> getFunctions() {
         return functions;
     }
 
@@ -41,21 +41,21 @@ public class Problem implements Comparable<Problem> {
 
     public static class Builder {
 
-        private Function mainFunction;
-        private final Collection<Function> functions = new LinkedList<>();
+        private JFunction mainFunction;
+        private final Collection<JFunction> functions = new LinkedList<>();
         private ProblemTopic[] topics;
         private ProblemType type;
         private double difficulty;
 
-        public void setMainFunction(Function mainFunction) {
+        public void setMainFunction(JFunction mainFunction) {
             this.mainFunction = mainFunction;
         }
 
-        public void addAuxFunctions(Collection<Function> executables) {
+        public void addAuxFunctions(Collection<JFunction> executables) {
             this.functions.addAll(executables);
         }
 
-        public void addAuxFunction(Function executable) {
+        public void addAuxFunction(JFunction executable) {
             this.functions.add(executable);
         }
 

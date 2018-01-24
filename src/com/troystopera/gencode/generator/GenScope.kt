@@ -1,7 +1,8 @@
 package com.troystopera.gencode.generator
 
-import com.troystopera.gencode.`var`.VarType
-import com.troystopera.gencode.code.Component
+import com.troystopera.jkode.Component
+import com.troystopera.jkode.vars.ArrayType
+import com.troystopera.jkode.vars.VarType
 import java.util.*
 import kotlin.reflect.KClass
 
@@ -14,7 +15,7 @@ class GenScope private constructor(
         inheritedPatterns: Collection<Pattern>?
 ) {
 
-    private val vars = hashMapOf<String, VarType>()
+    private val vars = hashMapOf<String, VarType<*>>()
     private val arrayLengths = hashMapOf<String, Int>()
     private val exclude = hashSetOf<String>()
     private val patterns = mutableListOf<Pattern>()
@@ -42,14 +43,12 @@ class GenScope private constructor(
         } else null
     }
 
-    fun addArrVar(name: String, type: VarType, length: Int) {
-        assert(!type.isPrimitive)
+    fun addArrVar(name: String, type: ArrayType<*>, length: Int) {
         vars.put(name, type)
         arrayLengths.put(name, length)
     }
 
-    fun addVar(name: String, type: VarType, enableManipulation: Boolean = true) {
-        assert(type.isPrimitive)
+    fun addVar(name: String, type: VarType<*>, enableManipulation: Boolean = true) {
         vars.put(name, type)
         if (!enableManipulation) exclude.add(name)
     }
@@ -60,21 +59,21 @@ class GenScope private constructor(
 
     fun hasVar(name: String): Boolean = vars.minus(exclude).contains(name) || parent?.hasVar(name) ?: false
 
-    fun hasVarType(type: VarType, vararg ignore: String): Boolean = vars.minus(exclude).minus(ignore).containsValue(type)
+    fun hasVarType(type: VarType<*>, vararg ignore: String): Boolean = vars.minus(exclude).minus(ignore).containsValue(type)
             || parent?.hasVarType(type, *ignore) ?: false
 
-    fun getRandVar(type: VarType, vararg ignore: String): String? = getRandVar(arrayOf(type), depth, *ignore)
+    fun getRandVar(type: VarType<*>, vararg ignore: String): String? = getRandVar(arrayOf(type), depth, *ignore)
 
-    fun getRandVar(type: VarType, maxDepth: Int, vararg ignore: String): String? = getRandVar(arrayOf(type), maxDepth, *ignore)
+    fun getRandVar(type: VarType<*>, maxDepth: Int, vararg ignore: String): String? = getRandVar(arrayOf(type), maxDepth, *ignore)
 
-    fun getRandVar(types: Array<VarType>, vararg ignore: String): String? = getRandVar(types, depth, *ignore)
+    fun getRandVar(types: Array<VarType<*>>, vararg ignore: String): String? = getRandVar(types, depth, *ignore)
 
-    fun getRandVar(types: Array<VarType>, maxDepth: Int, vararg ignore: String): String? {
+    fun getRandVar(types: Array<VarType<*>>, maxDepth: Int, vararg ignore: String): String? {
         val all = getAllVars(types, maxDepth).minus(ignore)
         return if (all.isEmpty()) null else all.elementAt(random.nextInt(all.size))
     }
 
-    fun getRandUnmanipVar(type: VarType, vararg ignore: String): String? {
+    fun getRandUnmanipVar(type: VarType<*>, vararg ignore: String): String? {
         val all = vars.keys.filter { vars[it] == type }.toMutableSet()
         var p = parent
         while (p != null) {
@@ -94,9 +93,9 @@ class GenScope private constructor(
         return if (avail.isEmpty()) null else avail.elementAt(random.nextInt(avail.size))
     }
 
-    fun getAllVars(type: VarType, maxDepth: Int = depth, includeAll: Boolean = false): Set<String> = getAllVars(arrayOf(type), maxDepth, includeAll)
+    fun getAllVars(type: VarType<*>, maxDepth: Int = depth, includeAll: Boolean = false): Set<String> = getAllVars(arrayOf(type), maxDepth, includeAll)
 
-    fun getAllVars(types: Array<VarType>, maxDepth: Int = depth, includeAll: Boolean = false): Set<String> {
+    fun getAllVars(types: Array<VarType<*>>, maxDepth: Int = depth, includeAll: Boolean = false): Set<String> {
         val set = vars.keys.filter { types.contains(vars[it]) && (includeAll || !exclude.contains(it)) }.toMutableSet()
         if (maxDepth > 0) set.addAll(parent?.getAllVars(types, maxDepth - 1, includeAll) ?: emptySet())
         return set

@@ -1,25 +1,30 @@
 package com.troystopera.gencode.generator.components
 
 import com.troystopera.gencode.ProblemTopic
-import com.troystopera.gencode.`var`.IntVar
-import com.troystopera.gencode.`var`.VarType
-import com.troystopera.gencode.code.Component
-import com.troystopera.gencode.code.components.ForLoop
-import com.troystopera.gencode.code.statements.Assignment
-import com.troystopera.gencode.code.statements.Declaration
-import com.troystopera.gencode.code.statements.Evaluation
-import com.troystopera.gencode.code.statements.evaluations.*
 import com.troystopera.gencode.generator.*
 import com.troystopera.gencode.generator.GenScope
 import com.troystopera.gencode.generator.VarNameProvider
 import com.troystopera.gencode.generator.constraints.ForLoopConstraints
+import com.troystopera.jkode.Component
+import com.troystopera.jkode.Evaluation
+import com.troystopera.jkode.components.ForLoop
+import com.troystopera.jkode.evaluations.ArrayLength
+import com.troystopera.jkode.evaluations.Comparison
+import com.troystopera.jkode.evaluations.MathOperation
+import com.troystopera.jkode.evaluations.Variable
+import com.troystopera.jkode.statements.Assignment
+import com.troystopera.jkode.statements.Declaration
+import com.troystopera.jkode.vars.ArrayType
+import com.troystopera.jkode.vars.ArrayVar
+import com.troystopera.jkode.vars.IntVar
+import com.troystopera.jkode.vars.VarType
 
 internal class ForLoopProvider(
         random: DifficultyRandom,
         topics: Array<out ProblemTopic>
 ) : ComponentProvider(ProviderType.FOR_LOOP, random, topics) {
 
-    override fun generate(parentType: Component.Type, varProvider: VarNameProvider, scope: GenScope, context: GenContext): Result {
+    override fun generate(varProvider: VarNameProvider, scope: GenScope, context: GenContext): Result {
         val varName = varProvider.nextVar()
         val newRecord = scope.createChildRecord(ForLoop::class)
         val pattern = createPattern(varName, newRecord)
@@ -28,7 +33,7 @@ internal class ForLoopProvider(
             if (pattern is Pattern.ArrayWalk)
                 context.mainArray = pattern.arrayName
         }
-        newRecord.addVar(varName, VarType.INT_PRIMITIVE, false)
+        newRecord.addVar(varName, VarType.INT, false)
 
         val up = ForLoopConstraints.useIncrease(random, pattern)
         val loop = ForLoop(
@@ -41,75 +46,76 @@ internal class ForLoopProvider(
 
     fun createPattern(intName: String, scope: GenScope): Pattern? {
         //array walk
-        if (scope.hasVarType(VarType.INT_ARRAY) && !scope.hasPattern(Pattern.ArrayWalk::class)) {
-            val array = scope.getRandVar(VarType.INT_ARRAY)!!
+        if (scope.hasVarType(VarType.ARRAY[VarType.INT]) && !scope.hasPattern(Pattern.ArrayWalk::class)) {
+            val array = scope.getRandVar(VarType.ARRAY[VarType.INT])!!
             return Pattern.ArrayWalk(array, intName)
         }
         return null
     }
 
-    private fun genDeclaration(varName: String, up: Boolean, scope: GenScope, pattern: Pattern?): Declaration {
+    private fun genDeclaration(varName: String, up: Boolean, scope: GenScope, pattern: Pattern?): Declaration<IntVar> {
         //TODO utilize other variables in loop declaration
-        val value: Evaluation<*> = when (pattern) {
+        val value: Evaluation<IntVar> = when (pattern) {
         //array walk declaration
             is Pattern.ArrayWalk -> {
-                if (up) Value.of(IntVar.of(0))
-                else MathOperation(OperationType.SUBTRACTION, ArrayLength.of(pattern.arrayName), Value.of(IntVar.of(1)))
+                if (up) IntVar[0].asEval()
+                else MathOperation(MathOperation.Type.SUBTRACT, ArrayLength(Variable(VarType.ARRAY, pattern.arrayName)), IntVar[1].asEval())
             }
         //default declaration
-            else -> Value.of(IntVar.of(if (up) random.randInt(0, 2) else random.randInt(1, 5)))
+            else -> IntVar[if (up) random.randInt(0, 2) else random.randInt(1, 5)].asEval()
         }
-        return Declaration.declareWithAssign(varName, VarType.INT_PRIMITIVE, value)
+        return Declaration(VarType.INT, varName, value)
     }
 
     private fun genComparison(varName: String, up: Boolean, scope: GenScope, pattern: Pattern?): Comparison<IntVar> {
-        val type: ComparisonType = when (pattern) {
+        val type: Comparison.Type = when (pattern) {
         //array walk comparison
             is Pattern.ArrayWalk -> {
-                if (up) ComparisonType.LESS_THAN
-                else ComparisonType.GREATER_THEN_EQUAL
+                if (up) Comparison.Type.LESS_THAN
+                else Comparison.Type.GREATER_THEN_EQUAL_TO
             }
         //default comparison
             else -> {
                 if (up)
-                    if (random.randBool()) ComparisonType.LESS_THAN else ComparisonType.LESS_THAN_EQUAL
+                    if (random.randBool()) Comparison.Type.LESS_THAN else Comparison.Type.LESS_THAN_EQUAL_TO
                 else
-                    if (random.randBool()) ComparisonType.GREATER_THEN else ComparisonType.GREATER_THEN_EQUAL
+                    if (random.randBool()) Comparison.Type.GREATER_THAN else Comparison.Type.GREATER_THEN_EQUAL_TO
             }
         }
 
         val value: Evaluation<IntVar> = when (pattern) {
         //array walk values
             is Pattern.ArrayWalk -> {
-                if (up) ArrayLength.of(pattern.arrayName)
-                else Value.of(IntVar.of(0))
+                if (up) ArrayLength(Variable(VarType.ARRAY, pattern.arrayName))
+                else IntVar[0].asEval()
             }
         //default value
-            else -> Value.of(IntVar.of(if (up) random.randInt(1, 5) else random.randInt(0, 3)))
+            else -> IntVar[if (up) random.randInt(1, 5) else random.randInt(0, 3)].asEval()
         }
-        return Comparison(type, Variable.of<IntVar>(varName), value)
+        return Comparison(type, Variable(VarType.INT, varName), value)
     }
 
     private fun genAssignment(varName: String, up: Boolean, scope: GenScope, pattern: Pattern?): Assignment {
+        val varVariable = Variable(VarType.INT, varName)
         return when {
             pattern is Pattern.ArrayWalk -> {
-                if (up) Assignment.increment(varName)
-                else Assignment.decrement(varName)
+                if (up) Assignment(varName, MathOperation(MathOperation.Type.ADD, varVariable, IntVar[1].asEval()))
+                else Assignment(varName, MathOperation(MathOperation.Type.SUBTRACT, varVariable, IntVar[1].asEval()))
             }
         //add or subtract by 1
             ForLoopConstraints.useSingleStep(random, scope) -> {
-                if (up) Assignment.increment(varName)
-                else Assignment.decrement(varName)
+                if (up) Assignment(varName, MathOperation(MathOperation.Type.ADD, varVariable, IntVar[1].asEval()))
+                else Assignment(varName, MathOperation(MathOperation.Type.SUBTRACT, varVariable, IntVar[1].asEval()))
             }
         //add or subtract by a random number
             else -> {
-                if (up) Assignment.assign(
+                if (up) Assignment(
                         varName,
-                        MathOperation(OperationType.ADDITION, varName, IntVar.of(random.randInt(1, 2)))
+                        MathOperation(MathOperation.Type.ADD, varVariable, IntVar[random.randInt(1, 2)].asEval())
                 )
-                else Assignment.assign(
+                else Assignment(
                         varName,
-                        MathOperation(OperationType.SUBTRACTION, varName, IntVar.of(random.randInt(1, 2)))
+                        MathOperation(MathOperation.Type.SUBTRACT, varVariable, IntVar[random.randInt(1, 2)].asEval())
                 )
             }
         }
