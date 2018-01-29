@@ -3,20 +3,18 @@ package com.troystopera.gencode.generator.components
 import com.troystopera.gencode.ProblemTopic
 import com.troystopera.gencode.generator.*
 import com.troystopera.jkode.Component
+import com.troystopera.jkode.components.CodeBlock
 
-internal abstract class ComponentProvider(
-        type: ProviderType,
-        random: DifficultyRandom,
-        topics: Array<out ProblemTopic>) : CodeProvider(type, random, topics) {
+internal abstract class ComponentProvider(type: ProviderType) : CodeProvider(type) {
 
-    abstract fun generate(varProvider: VarNameProvider, scope: GenScope, context: GenContext): Result
+    abstract fun generate(scope: GenScope, context: GenContext): Result
 
     internal companion object {
 
-        internal fun fromTopic(topic: ProblemTopic, topics: Array<out ProblemTopic>, random: DifficultyRandom): ComponentProvider {
+        internal fun fromTopic(topic: ProblemTopic): ComponentProvider {
             return when (topic) {
-                ProblemTopic.FOR_LOOP -> ForLoopProvider(random, topics)
-                ProblemTopic.CONDITIONAL -> ConditionalProvider(random, topics)
+                ProblemTopic.FOR_LOOP -> ForLoopProvider
+                ProblemTopic.CONDITIONAL -> ConditionalProvider
                 ProblemTopic.ARRAY -> throw IllegalArgumentException("No statements for arrays")
             }
         }
@@ -30,5 +28,11 @@ internal abstract class ComponentProvider(
         }
 
     }
+
+    class Result(
+            val component: Component,
+            val newBlocks: Array<CodeBlock>,
+            val scope: GenScope
+    )
 
 }

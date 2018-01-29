@@ -104,7 +104,7 @@ class GenScope private constructor(
     fun <T : Component> isIn(kClass: KClass<T>): Boolean =
             compClass?.equals(kClass) ?: false || parent?.isIn(kClass) ?: false
 
-    fun <T : Component> createChildRecord(kClass: KClass<T>): GenScope = GenScope(history, kClass, this, depth + 1, random, patterns)
+    fun <T : Component> createChildScope(kClass: KClass<T>): GenScope = GenScope(history, kClass, this, depth + 1, random, patterns)
 
     class History {
         private val returnedVars = mutableSetOf<String>()

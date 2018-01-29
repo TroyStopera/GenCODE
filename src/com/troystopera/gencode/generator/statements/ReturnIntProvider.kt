@@ -3,8 +3,6 @@ package com.troystopera.gencode.generator.statements
 import com.troystopera.gencode.ProblemTopic
 import com.troystopera.gencode.generator.*
 import com.troystopera.gencode.generator.GenScope
-import com.troystopera.gencode.generator.VarNameProvider
-import com.troystopera.jkode.Component
 import com.troystopera.jkode.components.CodeBlock
 import com.troystopera.jkode.control.Return
 import com.troystopera.jkode.evaluations.ArrayAccess
@@ -12,22 +10,19 @@ import com.troystopera.jkode.evaluations.Variable
 import com.troystopera.jkode.vars.IntVar
 import com.troystopera.jkode.vars.VarType
 
-internal class ReturnIntProvider(
-        random: DifficultyRandom,
-        topics: Array<out ProblemTopic>
-) : StatementProvider(ProviderType.RETURN, random, topics) {
+internal object ReturnIntProvider : StatementProvider(ProviderType.RETURN) {
 
-    override fun populate(parent: CodeBlock, varProvider: VarNameProvider, scope: GenScope, context: GenContext) {
+    override fun populate(parent: CodeBlock, scope: GenScope, context: GenContext) {
         //TODO add history for returned array variables
         //50% chance of array access if possible
-        if (random.randBool() && topics.contains(ProblemTopic.ARRAY) && scope.hasVarType(VarType.ARRAY[VarType.INT])) {
+        if (context.random.randBool() && context.topics.contains(ProblemTopic.ARRAY) && scope.hasVarType(VarType.ARRAY[VarType.INT])) {
             val arrName = scope.getRandVar(VarType.INT)
             val length = scope.getArrLength(arrName!!)
             parent.add(
                     Return(ArrayAccess(
                             VarType.INT,
                             Variable(VarType.ARRAY[VarType.INT], arrName),
-                            IntVar[random.randInt(0, length - 1)].asEval())
+                            IntVar[context.random.randInt(0, length - 1)].asEval())
                     )
             )
         }
@@ -44,7 +39,7 @@ internal class ReturnIntProvider(
                 scope.hasVarType(VarType.INT) ->
                     parent.add(Return(Variable(VarType.INT, scope.getRandVar(VarType.INT)!!)))
             //default to int literal
-                else -> parent.add(Return(IntVar[random.randInt()].asEval()))
+                else -> parent.add(Return(IntVar[context.random.randInt()].asEval()))
             }
         }
     }

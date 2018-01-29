@@ -1,14 +1,14 @@
 package com.troystopera.gencode.generator
 
-class GenContext {
+import com.troystopera.gencode.ProblemTopic
+
+class GenContext(
+        val random: DifficultyRandom,
+        val topics: List<ProblemTopic>,
+        val variableProvider: VarNameProvider
+) {
 
     var mainIntVar: String? = null
     var mainArray: String? = null
-
-    private val returnedVars: MutableSet<String> = mutableSetOf()
-
-    fun registerReturnedVar(name: String) {
-        returnedVars.add(name)
-    }
 
 }
