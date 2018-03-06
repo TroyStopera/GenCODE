@@ -21,7 +21,7 @@ import java.util.*
 
 class CodeGenerator private constructor(
         private val random: DifficultyRandom,
-        vararg private val topics: ProblemTopic
+        private vararg val topics: ProblemTopic
 ) {
 
     constructor(seed: Long, vararg topics: ProblemTopic) : this(DifficultyRandom(seed), *topics)
@@ -62,7 +62,7 @@ class CodeGenerator private constructor(
         DeclarationProvider.populate(main.body, rootRecord, context)
         context.mainIntVar = rootRecord.getRandVar(VarType.INT)
         main.body.add(BlankLine)
-        main.body.add(gen(context.variableProvider, rootRecord, context, nestPattern))
+        populate(main.body, rootRecord, context, nestPattern)
         //add a default return to ensure a complete program
         if (context.mainArray != null) {
             val array = context.mainArray!!
@@ -74,20 +74,24 @@ class CodeGenerator private constructor(
         return builder.build()
     }
 
-    private fun gen(variableProvider: VarNameProvider, scope: GenScope, context: GenContext, nestStructure: NestStructure): Component {
+    private fun populate(parent: CodeBlock, scope: GenScope, context: GenContext, nestStructure: NestStructure) {
         when (nestStructure) {
             is NestStructure.NestedLoop -> {
-                val block = CodeBlock()
-                var temp = block
+                //generate the outer loop and add it to parent
+                var result = ForLoopProvider.generate(scope, context)
+                parent.add(result.component)
+                //setup initial values for temp variables
+                var temp = result.component as CodeBlock
                 var genScope = scope
-                for (i in 1..nestStructure.depth) {
-                    val result = ForLoopProvider.generate(genScope, context)
+                //create proper number of nested loops
+                for (i in 1 until nestStructure.depth) {
+                    result = ForLoopProvider.generate(genScope, context)
                     temp.add(result.component)
                     temp = result.component as ForLoop
                     genScope = result.scope
                 }
+                //populate innermost loop
                 ManipulationProvider.populate(temp, genScope, context)
-                return block
             }
 
             is NestStructure.NestedConditional -> {
@@ -115,15 +119,16 @@ class CodeGenerator private constructor(
                         }
                     }
                 }
-                return conditional.component
+                parent.add(conditional.component)
             }
 
             is NestStructure.NestedLoopConditional -> {
-                val block = CodeBlock()
+                //create outer loop and add it to parent
                 var loopResult = ForLoopProvider.generate(scope, context)
+                parent.add(loopResult.component)
+                //setup initial temp values
                 var loop = loopResult.component
                 var s = loopResult.scope
-                block.add(loop)
 
                 //add second for loop if needed
                 if (nestStructure.depth > 2) {
@@ -138,35 +143,30 @@ class CodeGenerator private constructor(
                 (loop as CodeBlock).add(condResult.component)
                 for (b in condResult.newBlocks)
                     ManipulationProvider.populate(b, condResult.scope, context)
-                return block
             }
 
             NestStructure.Companion.SingleLoop -> {
                 val result = ForLoopProvider.generate(scope, context)
-                val loop = result.component as CodeBlock
-                val s = result.scope
-                ManipulationProvider.populate(loop, s, context)
-                return loop
+                parent.add(result.component)
+                ManipulationProvider.populate(result.component as CodeBlock, result.scope, context)
             }
 
             NestStructure.Companion.SingleConditional -> {
                 val result = ConditionalProvider.generate(scope, context)
                 for (block in result.newBlocks)
                     ManipulationProvider.populate(block, result.scope, context)
-                return result.component
+                parent.add(result.component)
             }
 
             NestStructure.Companion.ComboLoopConditional -> {
-                val block = CodeBlock()
                 val loop = ForLoopProvider.generate(scope, context)
                 ManipulationProvider.populate(loop.component as CodeBlock, loop.scope, context)
                 val conditional = ConditionalProvider.generate(scope, context)
                 for (b in conditional.newBlocks)
                     ManipulationProvider.populate(b, conditional.scope, context)
-                block.add(loop.component)
-                block.add(BlankLine)
-                block.add(conditional.component)
-                return block
+                parent.add(loop.component)
+                parent.add(BlankLine)
+                parent.add(conditional.component)
             }
         }
     }

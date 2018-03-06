@@ -30,9 +30,9 @@ internal object ConditionalProvider : ComponentProvider(ProviderType.CONDITIONAL
             if (comparisons.size >= MAX_BRANCHES || context.random.randEasyBool())
                 comparisons.removeAt(context.random.randInt(0, comparisons.size - 1))
 
-            val block = CodeBlock()
-            conditional.setElseBlock(block)
-            blocks.add(block)
+            val elseBranch = Conditional.ElseBranch()
+            conditional.setElse(elseBranch)
+            blocks.add(elseBranch)
         }
 
         //add all branches

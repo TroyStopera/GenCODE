@@ -64,14 +64,14 @@ internal object ForLoopProvider : ComponentProvider(ProviderType.FOR_LOOP) {
         //array walk comparison
             is Pattern.ArrayWalk -> {
                 if (up) Comparison.Type.LESS_THAN
-                else Comparison.Type.GREATER_THEN_EQUAL_TO
+                else Comparison.Type.GREATER_THAN_EQUAL_TO
             }
         //default comparison
             else -> {
                 if (up)
                     if (context.random.randBool()) Comparison.Type.LESS_THAN else Comparison.Type.LESS_THAN_EQUAL_TO
                 else
-                    if (context.random.randBool()) Comparison.Type.GREATER_THAN else Comparison.Type.GREATER_THEN_EQUAL_TO
+                    if (context.random.randBool()) Comparison.Type.GREATER_THAN else Comparison.Type.GREATER_THAN_EQUAL_TO
             }
         }
 
