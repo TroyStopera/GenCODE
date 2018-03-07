@@ -3,9 +3,7 @@ package com.troystopera.gencode;
 import com.troystopera.jkode.JFunction;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /***
  * Represents a generated problem. Used to pass generated code in a neat fashion.
@@ -32,6 +30,10 @@ public class Problem implements Comparable<Problem> {
 
     public List<JFunction> getFunctions() {
         return functions;
+    }
+
+    public List<ProblemTopic> getTopics() {
+        return Arrays.asList(topics);
     }
 
     @Override
