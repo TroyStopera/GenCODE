@@ -11,8 +11,8 @@ sealed class ComparisonOverride : ExecutionOverride<BooleanVar, Comparison<*>> {
 
     object InvertedBoolean : ComparisonOverride() {
 
-        override fun execute(executable: Comparison<*>, scope: Scope, output: MutableOutput?, executor: Executor): BooleanVar {
-            val value = executable.execute(scope, output).value
+        override fun execute(executable: Comparison<*>, scope: Scope, executor: Executor, output: MutableOutput?): BooleanVar {
+            val value = executable.execute(scope, executor, output).value
             return BooleanVar[!value]
         }
 
@@ -20,7 +20,7 @@ sealed class ComparisonOverride : ExecutionOverride<BooleanVar, Comparison<*>> {
 
     object OrEqualToMistake : ComparisonOverride() {
 
-        override fun execute(executable: Comparison<*>, scope: Scope, output: MutableOutput?, executor: Executor): BooleanVar {
+        override fun execute(executable: Comparison<*>, scope: Scope, executor: Executor, output: MutableOutput?): BooleanVar {
             val comparison = when (executable.type) {
                 Comparison.Type.LESS_THAN -> Comparison.Type.LESS_THAN_EQUAL_TO
                 Comparison.Type.LESS_THAN_EQUAL_TO -> Comparison.Type.LESS_THAN
@@ -29,7 +29,7 @@ sealed class ComparisonOverride : ExecutionOverride<BooleanVar, Comparison<*>> {
                 Comparison.Type.GREATER_THAN_EQUAL_TO -> Comparison.Type.GREATER_THAN
                 Comparison.Type.GREATER_THAN -> Comparison.Type.GREATER_THAN_EQUAL_TO
             }
-            return executable.withCompType(comparison).execute(scope, output)
+            return executable.withCompType(comparison).execute(scope, executor, output)
         }
 
     }

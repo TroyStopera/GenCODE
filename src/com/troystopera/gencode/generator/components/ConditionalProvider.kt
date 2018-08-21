@@ -32,14 +32,14 @@ internal object ConditionalProvider : ComponentProvider(ProviderType.CONDITIONAL
 
             val elseBranch = Conditional.ElseBranch()
             conditional.setElse(elseBranch)
-            blocks.add(elseBranch)
+            blocks.add(elseBranch.body)
         }
 
         //add all branches
         for (comparison in comparisons) {
             val branch = Conditional.Branch(comparison)
             conditional.addBranch(branch)
-            blocks.add(branch)
+            blocks.add(branch.body)
         }
 
         return Result(conditional.build(), blocks.toTypedArray(), scope)

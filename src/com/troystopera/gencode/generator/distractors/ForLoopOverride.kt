@@ -15,19 +15,19 @@ sealed class ForLoopOverride : ExecutionOverride<CtrlStmt<*>?, ForLoop> {
 
     object SkipFirst : ForLoopOverride() {
 
-        override fun execute(executable: ForLoop, scope: Scope, output: MutableOutput?, executor: Executor): CtrlStmt<*>? {
+        override fun execute(executable: ForLoop, scope: Scope, executor: Executor, output: MutableOutput?): CtrlStmt<*>? {
             //run the for loop's initialization
-            executable.initialization.execute(scope, output, executor)
+            executable.initialization.execute(scope, executor, output)
             //run the afterthought first before running the body
-            executable.afterthought.execute(scope, output, executor)
+            executable.afterthought.execute(scope, executor, output)
             //run the for loop like usual from here
-            while (executable.condition.execute(scope, output, executor).value) {
-                val v = executable.executeBody(scope.newChildScope(), output, executor)
+            while (executable.condition.execute(scope, executor, output).value) {
+                val v = executable.executeBody(scope.newChildScope(), executor, output)
                 when (v) {
                     Break -> return null
                     is Return<*> -> return v
                 }
-                executable.afterthought.execute(scope, output, executor)
+                executable.afterthought.execute(scope, executor, output)
             }
             return null
         }
